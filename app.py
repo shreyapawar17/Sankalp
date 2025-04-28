@@ -239,27 +239,32 @@ def add_update(disaster_id):
         db.close()
     return redirect(url_for('manage_updates', disaster_id=disaster_id))
 
-@app.route('/disaster/<int:disaster_id>/shelters/allocate/<int:shelter_id>', methods=['POST'])
+@app.route('/disaster/<int:disaster_id>/shelters/allocate/<int:shelter_id>', methods=['POST']) 
 def allocate_shelter(disaster_id, shelter_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
+    
     db = get_db()
     cursor = db.cursor()
-    update_query = """
-    UPDATE Shelters SET disaster_id = %s
-    WHERE shelter_id = %s AND (disaster_id IS NULL OR disaster_id = 0)
+
+    insert_query = """
+    INSERT INTO disastershelters (disaster_id, shelter_id)
+    VALUES (%s, %s)
     """
+
     try:
-        cursor.execute(update_query, (disaster_id, shelter_id))
+        cursor.execute(insert_query, (disaster_id, shelter_id))
         db.commit()
         logging.info(f"Allocated shelter ID {shelter_id} to disaster ID {disaster_id}")
     except mysql.connector.Error as err:
         logging.error(f"Error allocating shelter ID {shelter_id}: {err}")
-        # Consider adding a flash message
+        # Optionally flash message here
     finally:
         cursor.close()
         db.close()
+
     return redirect(url_for('manage_shelters', disaster_id=disaster_id))
+
 
 @app.route('/disaster/<int:disaster_id>/shelters', methods=['GET'])
 def manage_shelters(disaster_id):
@@ -277,11 +282,22 @@ def manage_shelters(disaster_id):
 
     if disaster:
         # Fetch shelters allocated to the current disaster
-        cursor.execute("SELECT * FROM Shelters WHERE disaster_id = %s", (disaster_id,))
+        cursor.execute("""
+SELECT s.* 
+FROM Shelters s
+JOIN disastershelters ds ON s.shelter_id = ds.shelter_id
+WHERE ds.disaster_id = %s
+""", (disaster_id,))
+
         allocated_shelters = cursor.fetchall()
 
         # Fetch all unallocated shelters
-        cursor.execute("SELECT * FROM Shelters WHERE disaster_id IS NULL OR disaster_id = 0")
+        cursor.execute("""
+SELECT * 
+FROM Shelters 
+WHERE shelter_id NOT IN (SELECT shelter_id FROM disastershelters)
+""")
+
         unallocated_shelters = cursor.fetchall()
 
         proximity_threshold = 50  # Kilometers (adjust as needed)
@@ -348,7 +364,8 @@ def delete_shelter(disaster_id, shelter_id):
     db = get_db()
     cursor = db.cursor()
     try:
-        cursor.execute("UPDATE Shelters SET disaster_id = NULL WHERE shelter_id = %s AND disaster_id = %s", (shelter_id, disaster_id))
+        cursor.execute("DELETE FROM disastershelters WHERE disaster_id = %s AND shelter_id = %s", (disaster_id, shelter_id))
+
         db.commit()
         logging.info(f"Deallocated shelter ID {shelter_id} from disaster ID {disaster_id}")
         # Optionally, you could completely delete the shelter record if it's no longer needed
@@ -508,6 +525,7 @@ def unassign_volunteer(disaster_id, volunteer_id):
 def manage_resources(disaster_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
+    
     db = get_db()
     cursor = db.cursor(dictionary=True)
 
@@ -522,7 +540,7 @@ def manage_resources(disaster_id):
 
     # Fetch all available resource types
     cursor.execute("SELECT resource_id, resource_name, resource_type, unit FROM resources")
-    all_resources = cursor.fetchall()
+    all_resources = {row['resource_id']: row for row in cursor.fetchall()}  # Fetch as a dictionary
 
     # Fetch current resource needs for this disaster
     cursor.execute("""
@@ -535,16 +553,19 @@ def manage_resources(disaster_id):
 
     cursor.close()
     db.close()
+
     return render_template('manage_resources.html',
                            disaster=disaster,
                            disaster_id=disaster_id,
                            all_resources=all_resources,
                            disaster_resource_needs=disaster_resource_needs)
 
+
 @app.route('/disaster/<int:disaster_id>/resources/add', methods=['POST'])
 def add_resource_to_disaster(disaster_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
+    
     db = get_db()
     cursor = db.cursor()
     resource_id = request.form.get('resource_id')
@@ -577,16 +598,17 @@ def add_resource_to_disaster(disaster_id):
         db.commit()
     except mysql.connector.Error as err:
         logging.error(f"Error adding resource for disaster {disaster_id}: {err}")
-        # Consider adding a flash message
     finally:
         cursor.close()
         db.close()
     return redirect(url_for('manage_resources', disaster_id=disaster_id))
 
+
 @app.route('/disaster/<int:disaster_id>/resources/remove/<int:resource_id>', methods=['POST'])
 def remove_resource_from_disaster(disaster_id, resource_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
+    
     db = get_db()
     cursor = db.cursor()
     try:
@@ -596,10 +618,8 @@ def remove_resource_from_disaster(disaster_id, resource_id):
         """, (disaster_id, resource_id))
         db.commit()
         logging.info(f"Removed resource ID {resource_id} from disaster ID {disaster_id}")
-        # Consider adding a flash message
     except mysql.connector.Error as err:
         logging.error(f"Error removing resource {resource_id} from disaster {disaster_id}: {err}")
-        # Consider adding a flash message
     finally:
         cursor.close()
         db.close()

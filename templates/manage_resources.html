@@ -29,10 +29,12 @@
         <h2>Current Resource Needs</h2>
         {% if disaster_resource_needs %}
             <ul>
-                {% for resource in disaster_resource_needs %}
+                {% for resource_id, resource_data in disaster_resource_needs.items() %}
                     <li>
-                        <strong>{{ all_resources[resource.resource_id].resource_name }}</strong> ({{ all_resources[resource.resource_id].resource_type }} - {{ all_resources[resource.resource_id].unit }}) - Needed: {{ resource.quantity_needed }}
-                        <form method="POST" action="{{ url_for('remove_resource_from_disaster', disaster_id=disaster_id, resource_id=resource.resource_id) }}" style="display: inline;">
+                        <strong>{{ all_resources[resource_id].resource_name }}</strong> 
+                        ({{ all_resources[resource_id].resource_type }} - {{ all_resources[resource_id].unit }}) - Needed: 
+                        {{ resource_data.quantity_needed }}
+                        <form method="POST" action="{{ url_for('remove_resource_from_disaster', disaster_id=disaster_id, resource_id=resource_id) }}" style="display: inline;">
                             <button type="submit" class="remove-button">Remove</button>
                         </form>
                     </li>
@@ -49,7 +51,7 @@
             <div class="form-group">
                 <label for="resource_id">Resource:</label>
                 <select name="resource_id" id="resource_id">
-                    {% for resource in all_resources %}
+                    {% for resource in all_resources.values() %}
                         <option value="{{ resource.resource_id }}">{{ resource.resource_name }} ({{ resource.resource_type }})</option>
                     {% endfor %}
                 </select>
