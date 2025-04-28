@@ -15,7 +15,9 @@ app.secret_key = secrets.token_hex(32)
 
 # Replace with your preferred geocoding API and API key
 GEOCODING_API_URL = "https://api.opencagedata.com/geocode/v1/json"
-GEOCODING_API_KEY = os.environ.get('f57f1e8672d546038a9703151c474d9d') # Store your API key securely
+GEOCODING_API_KEY = 'f57f1e8672d546038a9703151c474d9d'
+
+
 
 def get_geocode(location_name):
     """Retrieves latitude and longitude for a given location name using a geocoding service."""
@@ -339,23 +341,52 @@ def add_shelter(disaster_id):
     contact_person = request.form.get('contact_person')
     contact_number = request.form.get('contact_number')
 
+    logging.info(f"Form data submitted for adding shelter: {request.form}")
+
+    if not latitude:
+        latitude = None
+    if not longitude:
+        longitude = None
+
     db = get_db()
     cursor = db.cursor()
-    insert_query = """
-    INSERT INTO Shelters (disaster_id, shelter_name, shelter_type, capacity, location, latitude, longitude, contact_person, contact_number)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """
     try:
-        cursor.execute(insert_query, (disaster_id, name, shelter_type, capacity, location, latitude, longitude, contact_person, contact_number))
+        # Insert into the Shelters table
+        insert_shelter_query = """
+        INSERT INTO Shelters (shelter_name, shelter_type, capacity, location, latitude, longitude, contact_person, contact_number)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        shelter_params = (name, shelter_type, capacity, location, latitude, longitude, contact_person, contact_number)
+        logging.info(f"Executing SQL query: {insert_shelter_query} with params: {shelter_params}")
+        cursor.execute(insert_shelter_query, shelter_params)
         db.commit()
-        logging.info(f"Added new shelter '{name}' for disaster ID {disaster_id}")
+
+        # Get the ID of the newly inserted shelter
+        shelter_id = cursor.lastrowid
+        logging.info(f"New shelter ID: {shelter_id}")
+
+        # Insert into the disastershelters table to link the shelter to the disaster
+        insert_disaster_shelter_query = """
+        INSERT INTO disastershelters (disaster_id, shelter_id)
+        VALUES (%s, %s)
+        """
+        disaster_shelter_params = (disaster_id, shelter_id)
+        logging.info(f"Executing SQL query: {insert_disaster_shelter_query} with params: {disaster_shelter_params}")
+        cursor.execute(insert_disaster_shelter_query, disaster_shelter_params)
+        db.commit()
+        logging.info(f"Linked shelter ID {shelter_id} to disaster ID {disaster_id}")
+
     except mysql.connector.Error as err:
         logging.error(f"Error adding shelter for disaster ID {disaster_id}: {err}")
+        logging.error(f"MySQL Error: {err}")
+        db.rollback() # Important to rollback if any part fails
         # Consider adding a flash message
     finally:
         cursor.close()
         db.close()
     return redirect(url_for('manage_shelters', disaster_id=disaster_id))
+
+
 
 @app.route('/disaster/<int:disaster_id>/shelter/<int:shelter_id>/delete', methods=['POST'])
 def delete_shelter(disaster_id, shelter_id):
@@ -364,21 +395,17 @@ def delete_shelter(disaster_id, shelter_id):
     db = get_db()
     cursor = db.cursor()
     try:
-        cursor.execute("DELETE FROM disastershelters WHERE disaster_id = %s AND shelter_id = %s", (disaster_id, shelter_id))
-
+        # Remove allocation from disastershelters table
+        cursor.execute("DELETE FROM disastershelters WHERE shelter_id = %s AND disaster_id = %s", (shelter_id, disaster_id))
         db.commit()
         logging.info(f"Deallocated shelter ID {shelter_id} from disaster ID {disaster_id}")
-        # Optionally, you could completely delete the shelter record if it's no longer needed
-        # cursor.execute("DELETE FROM Shelters WHERE shelter_id = %s", (shelter_id,))
-        # db.commit()
-        # logging.info(f"Deleted shelter ID {shelter_id}")
     except mysql.connector.Error as err:
-        logging.error(f"Error deallocating/deleting shelter ID {shelter_id}: {err}")
-        # Consider adding a flash message
+        logging.error(f"Error deallocating shelter ID {shelter_id}: {err}")
     finally:
         cursor.close()
         db.close()
     return redirect(url_for('manage_shelters', disaster_id=disaster_id))
+
 
 @app.route('/disaster/<int:disaster_id>/shelter/<int:shelter_id>/edit', methods=['GET', 'POST'])
 def edit_shelter(disaster_id, shelter_id):
@@ -389,9 +416,10 @@ def edit_shelter(disaster_id, shelter_id):
     shelter = None
 
     if request.method == 'GET':
-        # Fetch the shelter data for editing
-        cursor.execute("SELECT * FROM Shelters WHERE shelter_id = %s AND disaster_id = %s", (shelter_id, disaster_id))
+    # Fetch shelter data without disaster_id
+        cursor.execute("SELECT * FROM Shelters WHERE shelter_id = %s", (shelter_id,))
         shelter = cursor.fetchone()
+
         cursor.close()
         db.close()
         if shelter:
@@ -525,7 +553,7 @@ def unassign_volunteer(disaster_id, volunteer_id):
 def manage_resources(disaster_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
+
     db = get_db()
     cursor = db.cursor(dictionary=True)
 
@@ -538,18 +566,24 @@ def manage_resources(disaster_id):
         db.close()
         return "Disaster not found", 404
 
-    # Fetch all available resource types
-    cursor.execute("SELECT resource_id, resource_name, resource_type, unit FROM resources")
-    all_resources = {row['resource_id']: row for row in cursor.fetchall()}  # Fetch as a dictionary
+    # Fetch all available resources
+    cursor.execute("SELECT resource_id, resource_name, resource_type, unit, quantity FROM resources")
+    all_resources = {row['resource_id']: row for row in cursor.fetchall()}
 
-    # Fetch current resource needs for this disaster
+    # Fetch current resource needs, available, and allocated quantities for this disaster
     cursor.execute("""
-        SELECT dr.resource_id, r.resource_name, r.resource_type, dr.quantity_needed
+        SELECT
+            dr.resource_id,
+            r.resource_name,
+            r.resource_type,
+            dr.quantity_needed,
+            dr.quantity_allocated,
+            r.quantity AS quantity_available
         FROM disasterresources dr
         JOIN resources r ON dr.resource_id = r.resource_id
         WHERE dr.disaster_id = %s
     """, (disaster_id,))
-    disaster_resource_needs = {row['resource_id']: row for row in cursor.fetchall()}
+    disaster_resources_data = {row['resource_id']: row for row in cursor.fetchall()}
 
     cursor.close()
     db.close()
@@ -558,46 +592,70 @@ def manage_resources(disaster_id):
                            disaster=disaster,
                            disaster_id=disaster_id,
                            all_resources=all_resources,
-                           disaster_resource_needs=disaster_resource_needs)
+                           disaster_resources_data=disaster_resources_data)
 
 
 @app.route('/disaster/<int:disaster_id>/resources/add', methods=['POST'])
 def add_resource_to_disaster(disaster_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
+
     db = get_db()
     cursor = db.cursor()
     resource_id = request.form.get('resource_id')
     quantity_needed = int(request.form.get('quantity', 0))
 
     try:
+        # Check if the resource exists
+        cursor.execute("SELECT quantity FROM resources WHERE resource_id = %s", (resource_id,))
+        resource = cursor.fetchone()
+        if not resource:
+            flash("Resource not found.", "error")
+            return redirect(url_for('manage_resources', disaster_id=disaster_id))
+
+        available_quantity = resource[0]
+
+        if quantity_needed > available_quantity:
+            flash(f"Not enough {all_resources.get(int(resource_id), {}).get('resource_name', 'resource')} available. Available: {available_quantity}", "warning")
+            return redirect(url_for('manage_resources', disaster_id=disaster_id))
+
         # Check if the resource is already associated with the disaster
         cursor.execute("""
-            SELECT * FROM disasterresources
+            SELECT quantity_needed, quantity_allocated FROM disasterresources
             WHERE disaster_id = %s AND resource_id = %s
         """, (disaster_id, resource_id))
         existing_resource = cursor.fetchone()
 
         if existing_resource:
-            # Update existing resource's needed quantity
+            new_quantity_needed = existing_resource[0] + quantity_needed
+            new_quantity_allocated = existing_resource[1] + quantity_needed  # Allocate the newly needed amount
+
             cursor.execute("""
                 UPDATE disasterresources
-                SET quantity_needed = quantity_needed + %s
+                SET quantity_needed = %s, quantity_allocated = %s
                 WHERE disaster_id = %s AND resource_id = %s
-            """, (quantity_needed, disaster_id, resource_id))
-            logging.info(f"Added {quantity_needed} to resource ID {resource_id} for disaster ID {disaster_id}")
+            """, (new_quantity_needed, new_quantity_allocated, disaster_id, resource_id))
+            logging.info(f"Updated needed and allocated {quantity_needed} for resource ID {resource_id} in disaster ID {disaster_id}")
         else:
-            # Add new resource for the disaster
+            # Add new resource for the disaster, initially allocating the needed amount
             cursor.execute("""
-                INSERT INTO disasterresources (disaster_id, resource_id, quantity_needed)
-                VALUES (%s, %s, %s)
-            """, (disaster_id, resource_id, quantity_needed))
-            logging.info(f"Added resource ID {resource_id} with quantity {quantity_needed} to disaster ID {disaster_id}")
+                INSERT INTO disasterresources (disaster_id, resource_id, quantity_needed, quantity_allocated)
+                VALUES (%s, %s, %s, %s)
+            """, (disaster_id, resource_id, quantity_needed, quantity_needed))
+            logging.info(f"Added and allocated {quantity_needed} of resource ID {resource_id} to disaster ID {disaster_id}")
+
+        # Subtract the allocated quantity from the total available resources
+        cursor.execute("""
+            UPDATE resources
+            SET quantity = quantity - %s
+            WHERE resource_id = %s
+        """, (quantity_needed, resource_id))
 
         db.commit()
     except mysql.connector.Error as err:
-        logging.error(f"Error adding resource for disaster {disaster_id}: {err}")
+        db.rollback()
+        logging.error(f"Error adding/allocating resource for disaster {disaster_id}: {err}")
+        flash(f"Database error: {err}", "error")
     finally:
         cursor.close()
         db.close()

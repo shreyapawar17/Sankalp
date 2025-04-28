@@ -11,6 +11,8 @@
         .resource-section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
         ul { list-style: none; padding: 0; }
         li { margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .resource-info { flex-grow: 1; }
+        .quantity-info { margin-left: 20px; display: flex; gap: 15px; align-items: center; }
         .form-group { margin-bottom: 10px; }
         label { display: block; margin-bottom: 5px; }
         input[type="number"], select { width: 150px; padding: 5px; border: 1px solid #ccc; border-radius: 3px; }
@@ -26,27 +28,33 @@
     <h1>Manage Resources - Disaster: {{ disaster.disaster_name }} (ID: {{ disaster_id }})</h1>
 
     <div class="resource-section">
-        <h2>Current Resource Needs</h2>
-        {% if disaster_resource_needs %}
+        <h2>Current Resource Allocation</h2>
+        {% if disaster_resources_data %}
             <ul>
-                {% for resource_id, resource_data in disaster_resource_needs.items() %}
+                {% for resource_id, data in disaster_resources_data.items() %}
                     <li>
-                        <strong>{{ all_resources[resource_id].resource_name }}</strong> 
-                        ({{ all_resources[resource_id].resource_type }} - {{ all_resources[resource_id].unit }}) - Needed: 
-                        {{ resource_data.quantity_needed }}
-                        <form method="POST" action="{{ url_for('remove_resource_from_disaster', disaster_id=disaster_id, resource_id=resource_id) }}" style="display: inline;">
-                            <button type="submit" class="remove-button">Remove</button>
-                        </form>
+                        <div class="resource-info">
+                            <strong>{{ data.resource_name }}</strong>
+                            ({{ data.resource_type }} - {{ all_resources[resource_id].unit }})
+                        </div>
+                        <div class="quantity-info">
+                            <span>Allotted: {{ data.quantity_needed }}</span>
+                            <span>Available: {{ data.quantity_available }}</span>
+                            <span>Allocated: {{ data.quantity_allocated }}</span>
+                            <form method="POST" action="{{ url_for('remove_resource_from_disaster', disaster_id=disaster_id, resource_id=resource_id) }}" style="display: inline;">
+                                <button type="submit" class="remove-button">Remove</button>
+                            </form>
+                        </div>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p>No resource needs have been added for this disaster yet.</p>
+            <p>No resources have been allocated for this disaster yet.</p>
         {% endif %}
     </div>
 
     <div class="resource-section">
-        <h2>Add Resource Needs</h2>
+        <h2>Add Resource Allocation</h2>
         <form method="POST" action="{{ url_for('add_resource_to_disaster', disaster_id=disaster_id) }}">
             <div class="form-group">
                 <label for="resource_id">Resource:</label>
@@ -57,10 +65,10 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="quantity">Quantity Needed:</label>
+                <label for="quantity">Quantity to Allot:</label>
                 <input type="number" name="quantity" id="quantity" value="1" min="1">
             </div>
-            <button type="submit">Add Resource Need</button>
+            <button type="submit">Add Resource Allocation</button>
         </form>
     </div>
 
