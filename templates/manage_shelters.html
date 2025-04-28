@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Shelters - Disaster ID {{ disaster_id }} - Sankalp</title>
+    <style>
+        /* ... (your existing styles) ... */
+        .unallocated-shelters {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .unallocated-shelters h2 {
+            color: #28a745;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .unallocated-shelter-item {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .unallocated-shelter-item:last-child {
+            border-bottom: none;
+        }
+        .allocate-form {
+            display: inline-block;
+        }
+        .allocate-button {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        .allocate-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>Manage Shelters - Disaster: {{ disaster.disaster_name }} (ID: {{ disaster_id }})</h1>
+
+    <div class="shelter-list">
+        <h2>Allocated Shelters</h2>
+        {% if allocated_shelters %}
+            {% for shelter in allocated_shelters %}
+                <div class="shelter-item">
+                    <div class="shelter-details">
+                        <p><strong>Name:</strong> {{ shelter.shelter_name }} ({{ shelter.shelter_type }})</p>
+                        <p><strong>Location:</strong> {{ shelter.location }}</p>
+                        <p><strong>Capacity:</strong> {{ shelter.capacity }} / <strong>Occupied:</strong> {{ shelter.current_occupancy }}</p>
+                        {% if shelter.contact_person %}
+                            <p><strong>Contact:</strong> {{ shelter.contact_person }} ({{ shelter.contact_number }})</p>
+                        {% endif %}
+                        {% if shelter.latitude and shelter.longitude %}
+                            <p><strong>Coordinates:</strong> {{ shelter.latitude }}, {{ shelter.longitude }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="shelter-actions">
+                        <a href="{{ url_for('edit_shelter', disaster_id=disaster_id, shelter_id=shelter.shelter_id) }}">Edit</a>
+                        <a href="{{ url_for('delete_shelter', disaster_id=disaster_id, shelter_id=shelter.shelter_id) }}" onclick="return confirm('Are you sure you want to deallocate this shelter?')">Deallocate</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No shelters have been allocated to this disaster yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="unallocated-shelters">
+        <h2>Nearby Available Shelters</h2>
+        {% if unallocated_shelters %}
+            {% for shelter in unallocated_shelters %}
+                <div class="unallocated-shelter-item">
+                    <p><strong>Name:</strong> {{ shelter.shelter_name }} ({{ shelter.shelter_type }}) - {{ shelter.location }}
+                       {% if shelter.distance_to_disaster %}
+                           (Distance: {{ shelter.distance_to_disaster }})
+                       {% endif %}
+                    </p>
+                    <form class="allocate-form" method="POST" action="{{ url_for('allocate_shelter', disaster_id=disaster_id, shelter_id=shelter.shelter_id) }}">
+                        <button type="submit" class="allocate-button">Allocate to this Disaster</button>
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No nearby free shelters are currently available.</p>
+        {% endif %}
+    </div>
+
+    <div class="add-shelter-form">
+        <h2>Add New Shelter</h2>
+        <form method="POST" action="{{ url_for('add_shelter', disaster_id=disaster_id) }}">
+            <label for="shelter_name">Shelter Name:</label>
+            <input type="text" id="shelter_name" name="shelter_name" required>
+
+            <label for="shelter_type">Shelter Type (e.g., Hospital, School):</label>
+            <input type="text" id="shelter_type" name="shelter_type" required>
+
+            <label for="capacity">Capacity:</label>
+            <input type="number" id="capacity" name="capacity" value="0" min="0">
+
+            <label for="location">Location/Address:</label>
+            <input type="text" id="location" name="location">
+
+            <label for="latitude">Latitude (Optional):</label>
+            <input type="text" id="latitude" name="latitude">
+
+            <label for="longitude">Longitude (Optional):</label>
+            <input type="text" id="longitude" name="longitude">
+
+            <label for="contact_person">Contact Person (Optional):</label>
+            <input type="text" id="contact_person" name="contact_person">
+
+            <label for="contact_number">Contact Number (Optional):</label>
+            <input type="text" id="contact_number" name="contact_number">
+
+            <button type="submit">Add Shelter</button>
+        </form>
+    </div>
+
+    <a href="{{ url_for('manage_disaster', disaster_id=disaster_id) }}" class="back-link">Back to Manage Disaster</a>
+</body>
+</html>

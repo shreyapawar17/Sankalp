@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Volunteers - Disaster: {{ disaster.disaster_name }} (ID: {{ disaster_id }}) - Sankalp</title>
+    <style>
+        /* ... (Your existing styles) ... */
+        .volunteer-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .volunteer-list {
+            list-style: none;
+            padding: 0;
+        }
+        .volunteer-item {
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .volunteer-item:last-child {
+            border-bottom: none;
+        }
+        .active {
+            color: green;
+            font-weight: bold;
+        }
+        .inactive {
+            color: red;
+        }
+        .assign-form, .unassign-form {
+            margin-left: 10px;
+        }
+        .assign-button, .unassign-button {
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .assign-button {
+            border: 1px solid #007bff;
+            color: #007bff;
+            background-color: white;
+        }
+        .assign-button:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        .unassign-button {
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            background-color: white;
+        }
+        .unassign-button:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+        .distance {
+            font-size: 0.8em;
+            color: #777;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Manage Volunteers - Disaster: {{ disaster.disaster_name }} (ID: {{ disaster_id }})</h1>
+
+    <div class="volunteer-section">
+        <h2>Currently Appointed Volunteers</h2>
+        {% if appointed_volunteers %}
+            <ul class="volunteer-list">
+                {% for volunteer in appointed_volunteers %}
+                    <li class="volunteer-item">
+                        <div>
+                            {{ volunteer.first_name }} {{ volunteer.last_name }} ({{ volunteer.contact_number }}) - Type: {{ volunteer.volunteer_type }}
+                            <span class="active">Active</span>
+                        </div>
+                        <form class="unassign-form" method="POST" action="{{ url_for('unassign_volunteer', disaster_id=disaster.disaster_id, volunteer_id=volunteer.volunteer_id) }}">
+                            <button type="submit" class="unassign-button">Unassign</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No volunteers are currently appointed to this disaster.</p>
+        {% endif %}
+    </div>
+
+    <div class="volunteer-section">
+        <h2>Nearby Active Volunteers Available for Appointment</h2>
+        {% if nearby_active_unassigned_volunteers %}
+            <ul class="volunteer-list">
+                {% for volunteer in nearby_active_unassigned_volunteers %}
+                    <li class="volunteer-item">
+                        <div>
+                            {{ volunteer.first_name }} {{ volunteer.last_name }} ({{ volunteer.contact_number }}) - Type: {{ volunteer.volunteer_type }}
+                            <span class="active">Active</span>
+                            <span class="distance">({{ volunteer.distance }})</span>
+                        </div>
+                        <form class="assign-form" method="POST" action="{{ url_for('assign_volunteer', disaster_id=disaster.disaster_id, volunteer_id=volunteer.volunteer_id) }}">
+                            <button type="submit" class="assign-button">Appoint</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No nearby active volunteers available for appointment.</p>
+        {% endif %}
+    </div>
+
+    <a href="{{ url_for('manage_disaster', disaster_id=disaster_id) }}" class="back-link">Back to Manage Disaster</a>
+</body>
+</html>

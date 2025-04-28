@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sankalp - Disaster Management Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            color: #d32f2f;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .dashboard-actions {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        .dashboard-actions a {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #4caf50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .dashboard-actions a:hover {
+            background-color: #45a049;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .search-bar input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            width: 300px;
+        }
+        .search-bar button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .search-bar button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+        .action-links a {
+            display: inline-block;
+            margin-right: 10px;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+        .action-links a:hover {
+            color: #0056b3;
+        }
+        .no-disasters {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sankalp - Disaster Management Dashboard</h1>
+
+    <div class="dashboard-actions">
+        <a href="{{ url_for('add_disaster') }}">Add New Disaster</a>
+    </div>
+
+    <div class="search-bar">
+        <form method="GET" action="{{ url_for('dashboard') }}">
+            <input type="text" name="search_query" placeholder="Search disasters...">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    {% if disasters %}
+    <table>
+        <thead>
+            <tr>
+                <th>Disaster Name</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Start Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for disaster in disasters %}
+            <tr>
+                <td>{{ disaster.disaster_name }}</td>
+                <td>{{ disaster.disaster_type }}</td>
+                <td>{{ disaster.location }}</td>
+                <td>{{ disaster.start_date }}</td>
+                <td class="action-links">
+                    <a href="{{ url_for('manage_disaster', disaster_id=disaster.disaster_id) }}">Manage</a>
+                    <a href="{{ url_for('remove_disaster', disaster_id=disaster.disaster_id) }}">Remove</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="no-disasters">No current disasters to display.</p>
+    {% endif %}
+
+</body>
+</html>

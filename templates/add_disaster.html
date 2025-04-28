@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Disaster - Sankalp</title>
+    <style>
+        /* ... your existing CSS ... */
+    </style>
+</head>
+<body>
+    <div class="add-disaster-container">
+        <h1>Add New Disaster</h1>
+        <form method="POST" action="{{ url_for('add_disaster') }}">
+            <div class="form-group">
+                <label for="disaster_name">Disaster Name:</label>
+                <input type="text" id="disaster_name" name="disaster_name" required>
+            </div>
+            <div class="form-group">
+                <label for="disaster_type">Disaster Type:</label>
+                <select id="disaster_type" name="disaster_type" required>
+                    <option value="" disabled selected>Select Disaster Type</option>
+                    <optgroup label="Natural Disasters">
+                        <option value="Flood">Flood</option>
+                        <option value="Drought">Drought</option>
+                        <option value="Landslide">Landslide</option>
+                        <option value="Avalanche">Avalanche</option>
+                        <option value="Tsunami">Tsunami</option>
+                        <option value="Cyclone">Cyclone</option>
+                        <option value="Heatwave">Heatwave</option>
+                        <option value="Cold wave">Cold wave</option>
+                        <option value="Hailstorm">Hailstorm</option>
+                        <option value="Earthquake">Earthquake</option>
+                        <option value="Volcanic Eruption">Volcanic Eruption</option>
+                        <option value="Epidemic">Epidemic</option>
+                        <option value="Pest Attack">Pest Attack</option>
+                        <option value="Wildfire">Wildfire</option>
+                    </optgroup>
+                    <optgroup label="Man-Made Disasters">
+                        <option value="Industrial Accident">Industrial Accident</option>
+                        <option value="Chemical Spill">Chemical Spill</option>
+                        <option value="Nuclear Accident">Nuclear Accident</option>
+                        <option value="Oil Spill">Oil Spill</option>
+                        <option value="Urban Fire">Urban Fire</option>
+                        <option value="Transport Accident">Transport Accident</option>
+                        <option value="Terrorist Attack">Terrorist Attack</option>
+                        <option value="Stampede">Stampede</option>
+                    </optgroup>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="location">Location (City/Town/Village, District, State):</label>
+                <input type="text" id="location" name="location" onblur="geocodeLocation()">
+            </div>
+            <div class="form-group">
+                <label for="latitude">Latitude:</label>
+                <input type="number" id="latitude" name="latitude" step="0.000001" readonly>
+            </div>
+            <div class="form-group">
+                <label for="longitude">Longitude:</label>
+                <input type="number" id="longitude" name="longitude" step="0.000001" readonly>
+            </div>
+            <div class="form-group">
+                <label for="start_date">Start Date and Time:</label>
+                <input type="datetime-local" id="start_date" name="start_date">
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="button">Add Disaster</button>
+                <a href="{{ url_for('dashboard') }}" class="button cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function geocodeLocation() {
+            const locationInput = document.getElementById('location').value;
+            if (!locationInput.trim()) {
+                document.getElementById('latitude').value = '';
+                document.getElementById('longitude').value = '';
+                return;
+            }
+
+            fetch('/geocode', { // Your Flask backend endpoint for geocoding
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ location: locationInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.latitude && data.longitude) {
+                    document.getElementById('latitude').value = data.latitude;
+                    document.getElementById('longitude').value = data.longitude;
+                } else {
+                    alert('Could not geocode the location.');
+                    document.getElementById('latitude').value = '';
+                    document.getElementById('longitude').value = '';
+                }
+            })
+            .catch(error => {
+                console.error('Error during geocoding:', error);
+                alert('An error occurred while geocoding.');
+                document.getElementById('latitude').value = '';
+                document.getElementById('longitude').value = '';
+            });
+        }
+    </script>
+</body>
+</html>

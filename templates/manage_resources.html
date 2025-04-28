@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Resources - Disaster: {{ disaster.disaster_name }} (ID: {{ disaster_id }}) - Sankalp</title>
+    <style>
+        /* Basic styling - adapt to your existing styles */
+        body { font-family: sans-serif; margin: 20px; }
+        h1, h2 { color: #333; }
+        .resource-section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        ul { list-style: none; padding: 0; }
+        li { margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .form-group { margin-bottom: 10px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="number"], select { width: 150px; padding: 5px; border: 1px solid #ccc; border-radius: 3px; }
+        button { padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .remove-button { background-color: #dc3545; }
+        .remove-button:hover { background-color: #c82333; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Manage Resources - Disaster: {{ disaster.disaster_name }} (ID: {{ disaster_id }})</h1>
+
+    <div class="resource-section">
+        <h2>Current Resource Needs</h2>
+        {% if disaster_resource_needs %}
+            <ul>
+                {% for resource in disaster_resource_needs %}
+                    <li>
+                        <strong>{{ all_resources[resource.resource_id].resource_name }}</strong> ({{ all_resources[resource.resource_id].resource_type }} - {{ all_resources[resource.resource_id].unit }}) - Needed: {{ resource.quantity_needed }}
+                        <form method="POST" action="{{ url_for('remove_resource_from_disaster', disaster_id=disaster_id, resource_id=resource.resource_id) }}" style="display: inline;">
+                            <button type="submit" class="remove-button">Remove</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No resource needs have been added for this disaster yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="resource-section">
+        <h2>Add Resource Needs</h2>
+        <form method="POST" action="{{ url_for('add_resource_to_disaster', disaster_id=disaster_id) }}">
+            <div class="form-group">
+                <label for="resource_id">Resource:</label>
+                <select name="resource_id" id="resource_id">
+                    {% for resource in all_resources %}
+                        <option value="{{ resource.resource_id }}">{{ resource.resource_name }} ({{ resource.resource_type }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity Needed:</label>
+                <input type="number" name="quantity" id="quantity" value="1" min="1">
+            </div>
+            <button type="submit">Add Resource Need</button>
+        </form>
+    </div>
+
+    <a href="{{ url_for('manage_disaster', disaster_id=disaster_id) }}">Back to Manage Disaster</a>
+</body>
+</html>

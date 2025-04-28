@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Disaster - {{ disaster.disaster_name }} - Sankalp</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            color: #d32f2f;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .manage-options {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .manage-options h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #007bff;
+        }
+        .manage-button {
+            display: block;
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .manage-button:hover {
+            background-color: #0056b3;
+        }
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #6c757d;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="manage-options">
+        <h1>Manage Disaster</h1>
+        <h2>{{ disaster.disaster_name }}</h2>
+        <a href="{{ url_for('manage_updates', disaster_id=disaster.disaster_id) }}" class="manage-button">Manage Updates</a>
+        <a href="{{ url_for('manage_shelters', disaster_id=disaster.disaster_id) }}" class="manage-button">Manage Shelters</a>
+        <a href="{{ url_for('manage_volunteers', disaster_id=disaster.disaster_id) }}" class="manage-button">Manage Volunteers</a>
+        <a href="{{ url_for('manage_resources', disaster_id=disaster.disaster_id) }}" class="manage-button">Manage Resources</a>
+        <a href="{{ url_for('dashboard') }}" class="back-link">Back to Dashboard</a>
+    </div>
+</body>
+</html>
