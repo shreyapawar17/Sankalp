@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Sankalp</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: calc(100% - 12px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+        select {
+            width: calc(100% - 12px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+            height: 40px;
+        }
+        .error {
+            color: #d9534f;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+        .success {
+            color: #5cb85c;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            width: 100%;
+            display: block;
+            margin-top: 20px;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        p.login-link {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        p.login-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        p.login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <p class="{{ category }}">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('register') }}">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="full_name">Full Name:</label>
+                <input type="text" id="full_name" name="full_name" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            <div class="form-group">
+                <label for="role">Role:</label>
+                <select id="role" name="role" required>
+                    <option value="">Select Role</option>
+                    <option value="Team Leader - Rescue Operations">Team Leader - Rescue Operations</option>
+                    <option value="Team Leader - Medical Response">Team Leader - Medical Response</option>
+                    <option value="Operations Coordinator">Operations Coordinator</option>
+                    <option value="Logistics Coordinator">Logistics Coordinator</option>
+                    <option value="Field Officer - North Zone">Field Officer - North Zone</option>
+                    <option value="Field Officer - South Zone">Field Officer - South Zone</option>
+                    <option value="Field Officer - East Zone">Field Officer - East Zone</option>
+                    <option value="Field Officer - West Zone">Field Officer - West Zone</option>
+                    <option value="Resource Manager">Resource Manager</option>
+                    <option value="Inventory Specialist">Inventory Specialist</option>
+                    <option value="Volunteer Coordinator">Volunteer Coordinator</option>
+                    <option value="Volunteer Recruitment Officer">Volunteer Recruitment Officer</option>
+                    <option value="Senior Administrator">Senior Administrator</option>
+                    <option value="Director - Operations">Director - Operations</option>
+                    </select>
+            </div>
+            <button type="submit">Register</button>
+        </form>
+        <p class="login-link">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+    </div>
+</body>
+</html>

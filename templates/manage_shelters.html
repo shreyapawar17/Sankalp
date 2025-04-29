@@ -211,10 +211,10 @@
             <input type="text" id="location" name="location">
 
             <label for="latitude">Latitude (Optional):</label>
-            <input type="text" id="latitude" name="latitude">
+            <input type="text" id="latitude" name="latitude" readonly>
 
             <label for="longitude">Longitude (Optional):</label>
-            <input type="text" id="longitude" name="longitude">
+            <input type="text" id="longitude" name="longitude" readonly>
 
             <label for="contact_person">Contact Person (Optional):</label>
             <input type="text" id="contact_person" name="contact_person">
@@ -227,5 +227,47 @@
     </div>
 
     <a href="{{ url_for('manage_disaster', disaster_id=disaster_id) }}" class="back-link">Back to Manage Disaster</a>
+
+    <script>
+        const locationInput = document.getElementById('location');
+        const latitudeInput = document.getElementById('latitude');
+        const longitudeInput = document.getElementById('longitude');
+
+        locationInput.addEventListener('blur', geocodeLocation); // Or 'input' for more immediate updates
+
+        function geocodeLocation() {
+            const location = locationInput.value.trim();
+            if (location) {
+                fetch('/geocode', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ location: location })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.latitude && data.longitude) {
+                        latitudeInput.value = data.latitude;
+                        longitudeInput.value = data.longitude;
+                    } else if (data.error) {
+                        console.error('Geocoding error:', data.error);
+                        latitudeInput.value = '';
+                        longitudeInput.value = '';
+                        // Optionally display an error message to the user
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    latitudeInput.value = '';
+                    longitudeInput.value = '';
+                    // Optionally display an error message to the user
+                });
+            } else {
+                latitudeInput.value = '';
+                longitudeInput.value = '';
+            }
+        }
+    </script>
 </body>
 </html>

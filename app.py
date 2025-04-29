@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session, g
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, g,flash
 import mysql.connector
 import bcrypt
 import secrets
@@ -139,6 +139,47 @@ def login():
             return render_template('login.html', error='Invalid credentials')
     return render_template('login.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password'].encode('utf-8')
+        confirm_password = request.form['confirm_password'].encode('utf-8')
+        full_name = request.form['full_name']
+        role = request.form['role']
+
+        if password != confirm_password:
+            flash('Passwords do not match.', 'error')
+            return render_template('register.html')
+
+        hashed_password = bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')
+
+        db = get_db()
+        cursor = db.cursor()
+        try:
+            # Check if the username already exists
+            cursor.execute("SELECT username FROM Employees WHERE username = %s", (username,))
+            existing_user = cursor.fetchone()
+            if existing_user:
+                flash('Username already exists. Please choose a different one.', 'warning')
+                return render_template('register.html')
+
+            # Insert the new user into the database, including full_name and role
+            insert_query = "INSERT INTO Employees (username, password, full_name, role) VALUES (%s, %s, %s, %s)"
+            cursor.execute(insert_query, (username, hashed_password, full_name, role))
+            db.commit()
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+        except mysql.connector.Error as err:
+            logging.error(f"Error registering user: {err}")
+            flash(f'Registration failed: {err}', 'error')
+            db.rollback()
+        finally:
+            cursor.close()
+            db.close()
+    return render_template('register.html')
+
+
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
     if 'user_id' not in session:
@@ -201,6 +242,8 @@ def manage_disaster(disaster_id):
     else:
         # Handle the case where the disaster ID is not found
         return redirect(url_for('dashboard')) # Or display an error message
+
+
 
 @app.route('/disaster/<int:disaster_id>/updates', methods=['GET'])
 def manage_updates(disaster_id):
@@ -321,17 +364,24 @@ def add_shelter(disaster_id):
     shelter_type = request.form['shelter_type']
     capacity = request.form.get('capacity', 0)
     location = request.form['location']
-    latitude = request.form.get('latitude')
-    longitude = request.form.get('longitude')
+    latitude_form = request.form.get('latitude')
+    longitude_form = request.form.get('longitude')
     contact_person = request.form.get('contact_person')
     contact_number = request.form.get('contact_number')
 
     logging.info(f"Form data submitted for adding shelter: {request.form}")
 
-    if not latitude:
-        latitude = None
-    if not longitude:
-        longitude = None
+    latitude = None
+    longitude = None
+
+    # Geocode the location if latitude and longitude are not provided
+    if not latitude_form and not longitude_form and location:
+        latitude, longitude = get_geocode(location)
+        logging.info(f"Geocoded location '{location}' - Latitude: {latitude}, Longitude: {longitude}")
+    else:
+        latitude = latitude_form if latitude_form else None
+        longitude = longitude_form if longitude_form else None
+        logging.info(f"Latitude and Longitude provided in form - Latitude: {latitude}, Longitude: {longitude}")
 
     db = get_db()
     cursor = db.cursor()

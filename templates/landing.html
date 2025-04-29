@@ -10,6 +10,10 @@
             margin: 40px;
             background-color: #f4f4f4;
             color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         .container {
             background-color: #fff;
@@ -35,9 +39,13 @@
             border-radius: 6px;
             font-weight: bold;
             transition: background-color 0.3s ease;
+            margin: 5px; /* Add some spacing between buttons */
         }
         .button:hover {
             background-color: #45a049;
+        }
+        .auth-buttons {
+            margin-top: 20px; /* Add some space above the buttons */
         }
     </style>
 </head>
@@ -46,8 +54,11 @@
         <h1>Sankalp</h1>
         <p>Welcome to the National Disaster Management Authority's Disaster Management System.</p>
         <p>This platform is designed to empower NDMA employees to efficiently add, remove, and manage disaster information, allocate vital resources, and coordinate volunteer efforts.</p>
-        <p>Please log in to access the system dashboard and contribute to our mission of effective disaster response and management.</p>
-        <a href="{{ url_for('login') }}" class="button">Login</a>
+        <p>Please log in or register to access the system dashboard and contribute to our mission of effective disaster response and management.</p>
+        <div class="auth-buttons">
+            <a href="{{ url_for('login') }}" class="button">Login</a>
+            <a href="{{ url_for('register') }}" class="button">Register</a>
+        </div>
     </div>
 </body>
 </html>
