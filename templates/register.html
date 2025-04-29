@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Sankalp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); /* Gradient matching the login page */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -15,43 +16,51 @@
             margin: 0;
         }
         .container {
-            background-color: #fff;
+            background-color: #ffffff;
             padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             width: 400px;
+            max-width: 90%;
         }
         h2 {
             text-align: center;
-            color: #333;
+            color: #00796b; /* Green color matching login page */
             margin-bottom: 20px;
+            font-size: 2em;
         }
         .form-group {
             margin-bottom: 15px;
+            position: relative;
         }
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-            color: #555;
+            color: #2c3e50;
         }
         input[type="text"],
-        input[type="password"] {
+        input[type="password"],
+        select {
             width: calc(100% - 12px);
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 6px;
             box-sizing: border-box;
             font-size: 1em;
         }
-        select {
-            width: calc(100% - 12px);
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 1em;
-            height: 40px;
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        select:focus {
+            border-color: #00796b; /* Green focus border */
+            outline: none;
+        }
+        .form-group i {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            color: #00796b; /* Icon color matching theme */
         }
         .error {
             color: #d9534f;
@@ -64,19 +73,19 @@
             font-size: 0.9em;
         }
         button[type="submit"] {
-            background-color: #007bff;
+            background-color: #00796b;
             color: white;
             padding: 12px 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 1.1em;
             width: 100%;
             display: block;
             margin-top: 20px;
         }
         button[type="submit"]:hover {
-            background-color: #0056b3;
+            background-color: #004d40;
         }
         p.login-link {
             margin-top: 20px;
@@ -84,7 +93,7 @@
             font-size: 0.9em;
         }
         p.login-link a {
-            color: #007bff;
+            color: #00796b;
             text-decoration: none;
         }
         p.login-link a:hover {
@@ -94,7 +103,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>Register</h2>
+        <h2><i class="fas fa-user-plus"></i> Register</h2>
         {% if error %}
             <p class="error">{{ error }}</p>
         {% endif %}
@@ -107,23 +116,23 @@
         {% endwith %}
         <form method="POST" action="{{ url_for('register') }}">
             <div class="form-group">
-                <label for="username">Username:</label>
+                <label for="username"><i class="fas fa-user"></i> Username:</label>
                 <input type="text" id="username" name="username" required>
             </div>
             <div class="form-group">
-                <label for="full_name">Full Name:</label>
+                <label for="full_name"><i class="fas fa-id-card"></i> Full Name:</label>
                 <input type="text" id="full_name" name="full_name" required>
             </div>
             <div class="form-group">
-                <label for="password">Password:</label>
+                <label for="password"><i class="fas fa-lock"></i> Password:</label>
                 <input type="password" id="password" name="password" required>
             </div>
             <div class="form-group">
-                <label for="confirm_password">Confirm Password:</label>
+                <label for="confirm_password"><i class="fas fa-lock"></i> Confirm Password:</label>
                 <input type="password" id="confirm_password" name="confirm_password" required>
             </div>
             <div class="form-group">
-                <label for="role">Role:</label>
+                <label for="role"><i class="fas fa-clipboard-list"></i> Role:</label>
                 <select id="role" name="role" required>
                     <option value="">Select Role</option>
                     <option value="Team Leader - Rescue Operations">Team Leader - Rescue Operations</option>
@@ -140,9 +149,9 @@
                     <option value="Volunteer Recruitment Officer">Volunteer Recruitment Officer</option>
                     <option value="Senior Administrator">Senior Administrator</option>
                     <option value="Director - Operations">Director - Operations</option>
-                    </select>
+                </select>
             </div>
-            <button type="submit">Register</button>
+            <button type="submit"><i class="fas fa-sign-in-alt"></i> Register</button>
         </form>
         <p class="login-link">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
     </div>

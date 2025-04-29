@@ -1,89 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sankalp</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 40px;
-            background-color: #f4f4f4;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .login-container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 350px;
-        }
-        h2 {
-            color: #d32f2f;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        .button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
-        .error-message {
-            color: red;
-            margin-top: 10px;
-            text-align: center;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Sankalp</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); /* Same as landing */
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+    .login-container {
+      background: linear-gradient(to bottom, #f1f8e9, #ffffff); /* Inner match */
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      width: 350px;
+      max-width: 90%;
+    }
+    h2 {
+      color: #00796b;
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 1.8em;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border-color 0.3s ease;
+    }
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: #00796b;
+      outline: none;
+    }
+    .button {
+      width: 100%;
+      padding: 12px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s;
+    }
+    .button:hover {
+      background-color: #004d40;
+      transform: translateY(-2px);
+    }
+    .error-message {
+      color: #c62828;
+      margin-top: 12px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login to Sankalp</h2>
-        {% if error %}
-        <p class="error-message">{{ error }}</p>
-        {% endif %}
-        <form method="POST" action="{{ url_for('login') }}">
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" class="button">Login</button>
-        </form>
-    </div>
+  <div class="login-container">
+    <h2>Login to Sankalp</h2>
+    {% if error %}
+      <p class="error-message">{{ error }}</p>
+    {% endif %}
+    <form method="POST" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <button type="submit" class="button">Login</button>
+    </form>
+  </div>
 </body>
 </html>

@@ -4,52 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Disaster - {{ disaster.disaster_name }} - Sankalp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fa; /* Light grey background */
             color: #333;
         }
         h1 {
             color: #d32f2f;
-            margin-bottom: 20px;
             text-align: center;
+            margin-top: 50px;
+            font-size: 2.5em;
         }
         .manage-options {
             background-color: #fff;
-            padding: 20px;
+            padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            margin: 0 auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+            margin: 30px auto;
             text-align: center;
         }
         .manage-options h2 {
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             color: #007bff;
+            font-size: 1.8em;
         }
         .manage-button {
             display: block;
-            padding: 10px 20px;
-            margin-bottom: 10px;
+            padding: 12px 20px;
+            margin-bottom: 15px;
             background-color: #007bff;
             color: white;
             text-decoration: none;
             border-radius: 6px;
             font-weight: bold;
-            transition: background-color 0.3s ease;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.2s;
         }
         .manage-button:hover {
             background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        .manage-button i {
+            margin-right: 8px;
         }
         .back-link {
             display: block;
-            margin-top: 20px;
+            margin-top: 30px;
             text-align: center;
             color: #6c757d;
             text-decoration: none;
+            font-size: 1.1em;
         }
         .back-link:hover {
             color: #5a6268;
@@ -57,14 +67,22 @@
     </style>
 </head>
 <body>
+    <h1><i class="fas fa-exclamation-triangle"></i> Manage Disaster</h1>
     <div class="manage-options">
-        <h1>Manage Disaster</h1>
-        <h2>{{ disaster.disaster_name }}</h2>
-        <a href="{{ url_for('manage_updates', disaster_id=disaster.disaster_id) }}" class="manage-button">Manage Updates</a>
-        <a href="{{ url_for('manage_shelters', disaster_id=disaster.disaster_id) }}" class="manage-button">Manage Shelters</a>
-        <a href="{{ url_for('manage_volunteers', disaster_id=disaster.disaster_id) }}" class="manage-button">Manage Volunteers</a>
-        <a href="{{ url_for('manage_resources', disaster_id=disaster.disaster_id) }}" class="manage-button">Manage Resources</a>
-        <a href="{{ url_for('dashboard') }}" class="back-link">Back to Dashboard</a>
+        <h2><i class="fas fa-cogs"></i> {{ disaster.disaster_name }}</h2>
+        <a href="{{ url_for('manage_updates', disaster_id=disaster.disaster_id) }}" class="manage-button">
+            <i class="fas fa-edit"></i> Manage Updates
+        </a>
+        <a href="{{ url_for('manage_shelters', disaster_id=disaster.disaster_id) }}" class="manage-button">
+            <i class="fas fa-hotel"></i> Manage Shelters
+        </a>
+        <a href="{{ url_for('manage_volunteers', disaster_id=disaster.disaster_id) }}" class="manage-button">
+            <i class="fas fa-users"></i> Manage Volunteers
+        </a>
+        <a href="{{ url_for('manage_resources', disaster_id=disaster.disaster_id) }}" class="manage-button">
+            <i class="fas fa-boxes"></i> Manage Resources
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
     </div>
 </body>
 </html>

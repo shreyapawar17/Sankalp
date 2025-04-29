@@ -1,64 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sankalp - NDMA Disaster Management System</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 40px;
-            background-color: #f4f4f4;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        h1 {
-            color: #d32f2f; /* A shade of red, suggesting urgency */
-            margin-bottom: 20px;
-        }
-        p {
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-        .button {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: #4caf50; /* A shade of green, suggesting action */
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-            margin: 5px; /* Add some spacing between buttons */
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
-        .auth-buttons {
-            margin-top: 20px; /* Add some space above the buttons */
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sankalp - NDMA Disaster Management System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+    .container {
+      background: linear-gradient(to bottom, #f1f8e9, #ffffff);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      max-width: 800px;
+      width: 90%;
+      text-align: center;
+    }
+    h1 {
+      color: #00796b;
+      font-size: 2.8em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    h1 i {
+      margin-right: 12px;
+      font-size: 1.3em;
+      color: #00796b;
+    }
+    .tagline {
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-bottom: 30px;
+      color: #004d40;
+    }
+    p {
+      font-size: 1.1em;
+      margin-bottom: 30px;
+      color: #444;
+    }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      padding: 12px 24px;
+      background-color: #00796b;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin: 10px;
+      font-size: 1em;
+      transition: background-color 0.3s ease, transform 0.2s;
+    }
+    .button i {
+      margin-right: 8px;
+    }
+    .button:hover {
+      background-color: #004d40;
+      transform: translateY(-2px);
+    }
+    .auth-buttons {
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Sankalp</h1>
-        <p>Welcome to the National Disaster Management Authority's Disaster Management System.</p>
-        <p>This platform is designed to empower NDMA employees to efficiently add, remove, and manage disaster information, allocate vital resources, and coordinate volunteer efforts.</p>
-        <p>Please log in or register to access the system dashboard and contribute to our mission of effective disaster response and management.</p>
-        <div class="auth-buttons">
-            <a href="{{ url_for('login') }}" class="button">Login</a>
-            <a href="{{ url_for('register') }}" class="button">Register</a>
-        </div>
+  <div class="container">
+    <h1><i class="fas fa-shield-alt"></i> Sankalp</h1>
+    <div class="tagline">Empowering Rapid Response for a Safer Nation</div>
+    <p>Welcome to the NDMA Disaster Management System — enabling efficient coordination, resource allocation, and rapid disaster response.</p>
+    <div class="auth-buttons">
+      <a href="{{ url_for('login') }}" class="button"><i class="fas fa-sign-in-alt"></i> Login</a>
+      <a href="{{ url_for('register') }}" class="button"><i class="fas fa-user-plus"></i> Register</a>
     </div>
+  </div>
 </body>
 </html>
+
+
+
+
+
+
+
