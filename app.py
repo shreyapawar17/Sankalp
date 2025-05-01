@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session, g
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, g,flash
 import mysql.connector
 import bcrypt
 import secrets
@@ -76,6 +76,7 @@ def geocode():
     else:
         return jsonify({'error': f'Could not geocode the location: {location}'}), 404
 
+
 @app.route('/disaster/add', methods=['GET', 'POST'])
 def add_disaster():
     if 'user_id' not in session:
@@ -137,6 +138,47 @@ def login():
         else:
             return render_template('login.html', error='Invalid credentials')
     return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password'].encode('utf-8')
+        confirm_password = request.form['confirm_password'].encode('utf-8')
+        full_name = request.form['full_name']
+        role = request.form['role']
+
+        if password != confirm_password:
+            flash('Passwords do not match.', 'error')
+            return render_template('register.html')
+
+        hashed_password = bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')
+
+        db = get_db()
+        cursor = db.cursor()
+        try:
+            # Check if the username already exists
+            cursor.execute("SELECT username FROM Employees WHERE username = %s", (username,))
+            existing_user = cursor.fetchone()
+            if existing_user:
+                flash('Username already exists. Please choose a different one.', 'warning')
+                return render_template('register.html')
+
+            # Insert the new user into the database, including full_name and role
+            insert_query = "INSERT INTO Employees (username, password, full_name, role) VALUES (%s, %s, %s, %s)"
+            cursor.execute(insert_query, (username, hashed_password, full_name, role))
+            db.commit()
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+        except mysql.connector.Error as err:
+            logging.error(f"Error registering user: {err}")
+            flash(f'Registration failed: {err}', 'error')
+            db.rollback()
+        finally:
+            cursor.close()
+            db.close()
+    return render_template('register.html')
+
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
@@ -200,6 +242,8 @@ def manage_disaster(disaster_id):
     else:
         # Handle the case where the disaster ID is not found
         return redirect(url_for('dashboard')) # Or display an error message
+
+
 
 @app.route('/disaster/<int:disaster_id>/updates', methods=['GET'])
 def manage_updates(disaster_id):
@@ -336,8 +380,8 @@ def add_shelter(disaster_id):
     shelter_type = request.form['shelter_type']
     capacity = request.form.get('capacity', 0)
     location = request.form['location']
-    latitude = request.form.get('latitude')
-    longitude = request.form.get('longitude')
+    latitude_form = request.form.get('latitude')
+    longitude_form = request.form.get('longitude')
     contact_person = request.form.get('contact_person')
     contact_number = request.form.get('contact_number')
 
@@ -403,7 +447,6 @@ def delete_shelter(disaster_id, shelter_id):
         logging.error(f"Error deallocating shelter ID {shelter_id}: {err}")
     finally:
         cursor.close()
-        db.close()
     return redirect(url_for('manage_shelters', disaster_id=disaster_id))
 
 
@@ -470,11 +513,11 @@ def manage_volunteers(disaster_id):
 
     nearby_active_unassigned_volunteers = []
     appointed_volunteers = []
-    proximity_threshold = 50  # Kilometers (adjust as needed)
+    proximity_threshold = 5  # Kilometers (adjust as needed)
 
     if disaster:
-        # Fetch all volunteers
-        cursor.execute("SELECT volunteer_id, first_name, last_name, contact_number, volunteer_type, is_active, latitude, longitude FROM volunteers")
+        # Fetch all volunteer details including email and secondary contact number
+        cursor.execute("SELECT volunteer_id, first_name, last_name, contact_number, secondary_contact_number, email, volunteer_type, is_active, latitude, longitude FROM volunteers")
         all_volunteers = cursor.fetchall()
 
         # Fetch IDs of volunteers appointed to this disaster

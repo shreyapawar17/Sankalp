@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sankalp - Disaster Management Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 20px;
             background-color: #f4f4f4;
             color: #333;
@@ -15,6 +16,7 @@
             color: #d32f2f;
             margin-bottom: 20px;
             text-align: center;
+            font-size: 2.5em;
         }
         .dashboard-actions {
             margin-bottom: 20px;
@@ -22,17 +24,19 @@
         }
         .dashboard-actions a {
             display: inline-block;
-            padding: 10px 15px;
+            padding: 10px 20px;
             background-color: #4caf50;
             color: white;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 6px;
             margin-left: 10px;
             font-size: 16px;
-            transition: background-color 0.3s ease;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s;
         }
         .dashboard-actions a:hover {
             background-color: #45a049;
+            transform: translateY(-2px);
         }
         .search-bar {
             margin-bottom: 20px;
@@ -44,6 +48,7 @@
             border-radius: 4px;
             font-size: 16px;
             width: 300px;
+            margin-right: 10px;
         }
         .search-bar button {
             padding: 10px 15px;
@@ -63,12 +68,15 @@
             border-collapse: collapse;
             margin-bottom: 30px;
             background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
         }
         th, td {
             padding: 12px 15px;
             border-bottom: 1px solid #ddd;
             text-align: left;
+            font-size: 16px;
         }
         th {
             background-color: #f2f2f2;
@@ -94,19 +102,23 @@
             font-style: italic;
             color: #777;
         }
+        .no-disasters i {
+            font-size: 3em;
+            color: #d32f2f;
+        }
     </style>
 </head>
 <body>
     <h1>Sankalp - Disaster Management Dashboard</h1>
 
     <div class="dashboard-actions">
-        <a href="{{ url_for('add_disaster') }}">Add New Disaster</a>
+        <a href="{{ url_for('add_disaster') }}"><i class="fas fa-plus-circle"></i> Add New Disaster</a>
     </div>
 
     <div class="search-bar">
         <form method="GET" action="{{ url_for('dashboard') }}">
             <input type="text" name="search_query" placeholder="Search disasters...">
-            <button type="submit">Search</button>
+            <button type="submit"><i class="fas fa-search"></i> Search</button>
         </form>
     </div>
 
@@ -129,16 +141,16 @@
                 <td>{{ disaster.location }}</td>
                 <td>{{ disaster.start_date }}</td>
                 <td class="action-links">
-                    <a href="{{ url_for('manage_disaster', disaster_id=disaster.disaster_id) }}">Manage</a>
-                    <a href="{{ url_for('remove_disaster', disaster_id=disaster.disaster_id) }}">Remove</a>
+                    <a href="{{ url_for('manage_disaster', disaster_id=disaster.disaster_id) }}"><i class="fas fa-cogs"></i> Manage</a>
+                    <a href="{{ url_for('remove_disaster', disaster_id=disaster.disaster_id) }}"><i class="fas fa-trash-alt"></i> Remove</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% else %}
-    <p class="no-disasters">No current disasters to display.</p>
+    <p class="no-disasters"><i class="fas fa-times-circle"></i> No current disasters to display.</p>
     {% endif %}
-
 </body>
 </html>
+

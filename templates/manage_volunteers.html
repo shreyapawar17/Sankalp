@@ -5,65 +5,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Volunteers - Disaster: {{ disaster.disaster_name }} (ID: {{ disaster_id }}) - Sankalp</title>
     <style>
-        /* ... (Your existing styles) ... */
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
         .volunteer-section {
-            margin-bottom: 20px;
-            padding: 15px;
+            background-color: #fff;
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .volunteer-section h2 {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .volunteer-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .volunteer-table th, .volunteer-table td {
             border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 8px;
+            text-align: left;
         }
-        .volunteer-list {
-            list-style: none;
-            padding: 0;
+
+        .volunteer-table th {
+            background-color: #f2f2f2;
+            color: #333;
         }
-        .volunteer-item {
-            border-bottom: 1px solid #eee;
-            padding: 8px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .volunteer-item:last-child {
-            border-bottom: none;
-        }
+
         .active {
-            color: green;
+            color: #27ae60;
             font-weight: bold;
         }
+
         .inactive {
-            color: red;
+            color: #c0392b;
+            font-weight: bold;
         }
+
         .assign-form, .unassign-form {
-            margin-left: 10px;
+            margin: 0; /* Remove extra margin for buttons in table cells */
+            display: inline-block;
         }
+
         .assign-button, .unassign-button {
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-        .assign-button {
-            border: 1px solid #007bff;
-            color: #007bff;
-            background-color: white;
-        }
-        .assign-button:hover {
-            background-color: #007bff;
+            background-color: #4CAF50; /* Green */
             color: white;
-        }
-        .unassign-button {
-            border: 1px solid #dc3545;
-            color: #dc3545;
-            background-color: white;
-        }
-        .unassign-button:hover {
-            background-color: #dc3545;
-            color: white;
-        }
-        .distance {
+            border: none;
+            padding: 6px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
             font-size: 0.8em;
-            color: #777;
-            margin-left: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 5px; /* Add a little space below buttons */
+        }
+
+        .assign-button:hover {
+            background-color: #45a049;
+        }
+
+        .unassign-button {
+            background-color: #f44336; /* Red */
+        }
+
+        .unassign-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .proximity {
+            font-size: 0.9em;
+            color: #888;
+            font-style: italic;
+        }
+
+        .back-link {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #555;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .back-link:hover {
+            background-color: #333;
         }
     </style>
 </head>
@@ -73,19 +121,36 @@
     <div class="volunteer-section">
         <h2>Currently Appointed Volunteers</h2>
         {% if appointed_volunteers %}
-            <ul class="volunteer-list">
-                {% for volunteer in appointed_volunteers %}
-                    <li class="volunteer-item">
-                        <div>
-                            {{ volunteer.first_name }} {{ volunteer.last_name }} ({{ volunteer.contact_number }}) - Type: {{ volunteer.volunteer_type }}
-                            <span class="active">Active</span>
-                        </div>
-                        <form class="unassign-form" method="POST" action="{{ url_for('unassign_volunteer', disaster_id=disaster.disaster_id, volunteer_id=volunteer.volunteer_id) }}">
-                            <button type="submit" class="unassign-button">Unassign</button>
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
+            <table class="volunteer-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Secondary Phone</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for volunteer in appointed_volunteers %}
+                        <tr>
+                            <td>{{ volunteer.first_name }} {{ volunteer.last_name }}</td>
+                            <td>{{ volunteer.contact_number }}</td>
+                            <td>{{ volunteer.secondary_contact_number or '-' }}</td>
+                            <td>{{ volunteer.email }}</td>
+                            <td>{{ volunteer.volunteer_type }}</td>
+                            <td class="active">Active</td>
+                            <td>
+                                <form class="unassign-form" method="POST" action="{{ url_for('unassign_volunteer', disaster_id=disaster.disaster_id, volunteer_id=volunteer.volunteer_id) }}">
+                                    <button type="submit" class="unassign-button">Unassign</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         {% else %}
             <p>No volunteers are currently appointed to this disaster.</p>
         {% endif %}
@@ -94,20 +159,38 @@
     <div class="volunteer-section">
         <h2>Nearby Active Volunteers Available for Appointment</h2>
         {% if nearby_active_unassigned_volunteers %}
-            <ul class="volunteer-list">
-                {% for volunteer in nearby_active_unassigned_volunteers %}
-                    <li class="volunteer-item">
-                        <div>
-                            {{ volunteer.first_name }} {{ volunteer.last_name }} ({{ volunteer.contact_number }}) - Type: {{ volunteer.volunteer_type }}
-                            <span class="active">Active</span>
-                            <span class="distance">({{ volunteer.distance }})</span>
-                        </div>
-                        <form class="assign-form" method="POST" action="{{ url_for('assign_volunteer', disaster_id=disaster.disaster_id, volunteer_id=volunteer.volunteer_id) }}">
-                            <button type="submit" class="assign-button">Appoint</button>
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
+            <table class="volunteer-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Secondary Phone</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Proximity</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for volunteer in nearby_active_unassigned_volunteers %}
+                        <tr>
+                            <td>{{ volunteer.first_name }} {{ volunteer.last_name }}</td>
+                            <td>{{ volunteer.contact_number }}</td>
+                            <td>{{ volunteer.secondary_contact_number or '-' }}</td>
+                            <td>{{ volunteer.email }}</td>
+                            <td>{{ volunteer.volunteer_type }}</td>
+                            <td class="active">Active</td>
+                            <td class="proximity">({{ volunteer.distance }})</td>
+                            <td>
+                                <form class="assign-form" method="POST" action="{{ url_for('assign_volunteer', disaster_id=disaster.disaster_id, volunteer_id=volunteer.volunteer_id) }}">
+                                    <button type="submit" class="assign-button">Appoint</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         {% else %}
             <p>No nearby active volunteers available for appointment.</p>
         {% endif %}
