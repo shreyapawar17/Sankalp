@@ -7,6 +7,12 @@ import requests
 import logging
 import math
 
+
+
+app = Flask(__name__, template_folder='templates')
+app.jinja_env.auto_reload = True
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
 logging.basicConfig(level=logging.INFO)  # Configure logging
 
 app = Flask(__name__)
@@ -17,7 +23,15 @@ app.secret_key = secrets.token_hex(32)
 GEOCODING_API_URL = "https://api.opencagedata.com/geocode/v1/json"
 GEOCODING_API_KEY = 'f57f1e8672d546038a9703151c474d9d'
 
+def get_db_connection():
+    return mysql.connector.connect(
+        host="your_host",
+        user="your_user",
+        password="your_password",
+        database="disaster_management_db"
+    )
 
+    
 
 def get_geocode(location_name):
     """Retrieves latitude and longitude for a given location name using a geocoding service."""
@@ -725,5 +739,101 @@ def remove_resource_from_disaster(disaster_id, resource_id):
         cursor.close()
         db.close()
     return redirect(url_for('manage_resources', disaster_id=disaster_id))
+
+@app.route('/disaster/<int:disaster_id>/view')
+def view_disaster(disaster_id):
+    db = get_db()  # Get the database connection
+    cursor = db.cursor(dictionary=True)  # Use dictionary cursor for easier data retrieval
+
+    try:
+        # Fetch disaster details
+        cursor.execute("SELECT * FROM Disasters WHERE disaster_id = %s", (disaster_id,))
+        disaster = cursor.fetchone()
+
+        # Fetch related data using JOINs
+        cursor.execute("""
+            SELECT v.*
+            FROM Volunteers v
+            JOIN DisasterVolunteers dv ON v.volunteer_id = dv.volunteer_id
+            WHERE dv.disaster_id = %s AND dv.is_active = 1
+        """, (disaster_id,))
+        volunteers = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT r.*
+            FROM Resources r
+            JOIN DisasterResources dr ON r.resource_id = dr.resource_id
+            WHERE dr.disaster_id = %s
+        """, (disaster_id,))
+        resources = cursor.fetchall()
+
+        cursor.execute("SELECT * FROM Shelters WHERE disaster_id = %s", (disaster_id,))
+        shelters = cursor.fetchall()
+
+        cursor.execute("SELECT * FROM DisasterUpdates WHERE disaster_id = %s ORDER BY update_timestamp DESC", (disaster_id,))
+        updates = cursor.fetchall()
+
+        # Calculate summary information
+        latest_update = updates[0] if updates else None
+
+        cursor.execute("""
+            SELECT
+                SUM(dr.quantity_needed) AS total_resources,
+                GROUP_CONCAT(r.resource_type) AS resource_types
+            FROM DisasterResources dr
+            JOIN Resources r ON dr.resource_id = r.resource_id
+            WHERE dr.disaster_id = %s
+        """, (disaster_id,))
+        resource_summary = cursor.fetchone()
+
+        cursor.execute("""
+            SELECT
+                COUNT(dv.volunteer_id) AS active_volunteers,
+                GROUP_CONCAT(v.volunteer_type) AS volunteer_types
+            FROM DisasterVolunteers dv
+            JOIN Volunteers v ON dv.volunteer_id = v.volunteer_id
+            WHERE dv.disaster_id = %s AND dv.is_active = 1
+        """, (disaster_id,))
+        volunteer_summary = cursor.fetchone()
+
+        return render_template('view_disaster.html',
+                               selected_disaster=disaster,
+                               volunteers=volunteers,
+                               resources=resources,
+                               shelters=shelters,
+                               updates=updates,
+                               latest_update=latest_update,
+                               resource_summary=resource_summary,
+                               volunteer_summary=volunteer_summary)
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")  # Log the error
+        #  Consider showing a user-friendly error message on the page
+        return render_template('view_disaster.html', error_message=f"An error occurred while fetching data: {err}", selected_disaster=None, volunteers=[], resources=[], shelters=[], updates=[], latest_update=None, resource_summary=None, volunteer_summary=None)
+
+    finally:
+        cursor.close()
+        db.close()
+@app.route('/disaster/<int:disaster_id>/work_progress')
+def work_progress(disaster_id):
+    cursor = mysql.connection.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT r.resource_id, r.resource_name,
+               dr.quantity_allocated AS allocated_quantity,
+               dr.status
+        FROM disasterresources dr
+        JOIN resources r ON dr.resource_id = r.resource_id
+        WHERE dr.disaster_id = %s
+    """, (disaster_id,))
+    resources = cursor.fetchall()
+    cursor.close()
+    
+    print("=== RESOURCES ===")
+    for r in resources:
+        print(r)
+    
+    return render_template('work_progress.html', disaster_id=disaster_id, resources=resources)
+
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Work Progress - Sankalp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        h1, h2 {
+            color: #d32f2f;
+            text-align: center;
+        }
+        .table-container {
+            margin: 20px auto;
+            max-width: 1000px;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f1f1f1;
+        }
+        .action-links a {
+            color: #007bff;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        .action-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Work Progress - Disaster ID {{ disaster_id }}</h1>
+    <h1 style="color: red;">DEBUG: Template updated!</h1>
+
+    <div class="table-container">
+        <h2>Resource Allocation</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Resource Name</th>
+                    <th>Quantity Allocated</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for resource in resources %}
+                <tr>
+                    <td>{{ resource.resource_name }}</td>
+                    <td>{{ resource.allocated_quantity }}</td>
+                    <td>{{ resource.status }}</td>
+                    <td class="action-links">
+                        <a href="{{ url_for('edit_resource', resource_id=resource.resource_id) }}"><i class="fas fa-edit"></i> Edit</a>
+                        <a href="{{ url_for('remove_resource', resource_id=resource.resource_id) }}"><i class="fas fa-trash-alt"></i> Remove</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align:center;">No resources allocated for this disaster.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+

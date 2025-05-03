@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Details - Sankalp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Sankalp - NDMA Disaster Management */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc; /* Light background */
+            color: #2d3748; /* Darker text for better readability */
+        }
+        .container {
+            max-width: 800px; /* Increased max-width for larger screens */
+            margin: 2rem auto; /* Increased margin for better spacing */
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 0.75rem; /* Rounded corners */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Shadow */
+        }
+        h1 {
+            font-size: 2.25rem; /* Larger heading */
+            font-weight: 700; /* Bold heading */
+            color: #e53e3e; /* Red color for disaster name */
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        h2 {
+            font-size: 1.5rem; /* Increased heading size */
+            font-weight: 600; /* Semi-bold heading */
+            color: #4a5568; /* Darker heading */
+            margin-top: 2rem; /* Increased margin */
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #edf2f7; /* Subtler border */
+            padding-bottom: 0.5rem;
+        }
+        p {
+            line-height: 1.75; /* Increased line height for better readability */
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+        .info-box {
+            padding: 1.5rem;
+            background-color: #f0f4c3; /* Light yellow for information boxes */
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e6d054;
+        }
+
+        .info-box h3{
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 1rem;
+        }
+        .info-box ul {
+            list-style-type: disc;
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+
+        }
+         .info-box li{
+             margin-bottom: 0.5rem;
+        }
+
+        .resource-summary {
+            background-color: #e0f2fe; /* Light blue for resource summary */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #b7d9f3;
+        }
+
+        .resource-summary h3{
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 1rem;
+        }
+        .volunteer-summary {
+            background-color: #f0f4c3; /* Light yellow for volunteer summary */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e6d054;
+        }
+
+        .volunteer-summary h3{
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 1rem;
+        }
+
+        .shelter-summary {
+            background-color: #e0f7fa;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #b2ebf2;
+        }
+        .shelter-summary h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            border-radius: 0.75rem;
+            overflow: hidden; /* For rounded corners of the table */
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04); /* Subtler shadow */
+        }
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #edf2f7; /* Lighter border */
+        }
+        th {
+            background-color: #f7fafc; /* Very light background for header */
+            font-weight: 600;
+            color: #4a5568;
+        }
+        tbody tr:hover {
+            background-color: #edf2f7; /* Very light hover effect */
+        }
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background-color: #667eea; /* Indigo */
+            color: #fff;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            margin-top: 1rem;
+        }
+        .back-button:hover {
+            background-color: #4338ca; /* Darker indigo on hover */
+        }
+        .back-button svg {
+            margin-right: 0.5rem;
+            height: 1rem;
+            width: 1rem;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Disaster: {{ selected_disaster.disaster_name }}</h1>
+        <p><strong>Type:</strong> {{ selected_disaster.disaster_type }}</p>
+        <p><strong>Location:</strong> {{ selected_disaster.location }} (Latitude: {{ selected_disaster.latitude }}, Longitude: {{ selected_disaster.longitude }})</p>
+        <p><strong>Start Date:</strong> {{ selected_disaster.start_date.strftime('%Y-%m-%d %H:%M:%S') if selected_disaster.start_date else 'N/A' }}</p>
+        <p><strong>Description:</strong> {{ selected_disaster.description }}</p>
+
+        {% if latest_update %}
+            <h2>Latest Update</h2>
+            <div class="info-box">
+                <p><strong>Update Timestamp:</strong> {{ latest_update.update_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                <p><strong>Total Affected:</strong> {{ latest_update.total_affected }}</p>
+                <p><strong>Dead:</strong> {{ latest_update.dead }}</p>
+                <p><strong>Injured:</strong> {{ latest_update.injured }}</p>
+                <p><strong>Homeless:</strong> {{ latest_update.homeless }}</p>
+                <p><strong>Livelihood Lost:</strong> {{ latest_update.livelihood_lost }}</p>
+                <p><strong>Other Details:</strong> {{ latest_update.other_details }}</p>
+            </div>
+        {% endif %}
+
+        <h2>Volunteers</h2>
+        {% if volunteers %}
+            <ul>
+                {% for volunteer in volunteers %}
+                    <li>{{ volunteer.first_name }} {{ volunteer.last_name }} ({{ volunteer.volunteer_type }}, {{volunteer.contact_number}})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No volunteers assigned to this disaster.</p>
+        {% endif %}
+
+        <h2>Resources</h2>
+        {% if resources %}
+            <ul>
+                {% for resource in resources %}
+                    <li>{{ resource.resource_name }} ({{ resource.resource_type }}, Quantity: {{resource.quantity}} {{resource.unit}})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No resources allocated to this disaster.</p>
+        {% endif %}
+
+        <h2>Shelters</h2>
+        {% if shelters %}
+            <ul>
+                {% for shelter in shelters %}
+                    <li>{{ shelter.shelter_name }} (Capacity: {{ shelter.capacity }}, Occupancy: {{shelter.current_occupancy}}, Location: {{shelter.location}})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No shelters assigned to this disaster.</p>
+        {% endif %}
+
+        {% if resource_summary %}
+            <div class="resource-summary">
+                <h3>Resource Summary</h3>
+                <p><strong>Total Resources Needed:</strong> {{ resource_summary.total_resources_needed | default(0) }}</p>
+                 <p><strong>Resource Types:</strong> {{ resource_summary.resource_types | default('N/A') }}</p>
+            </div>
+        {% endif %}
+
+        {% if volunteer_summary %}
+            <div class="volunteer-summary">
+                 <h3>Volunteer Summary</h3>
+                <p><strong>Active Volunteers:</strong> {{ volunteer_summary.active_volunteers | default(0) }}</p>
+                <p><strong>Volunteer Types:</strong> {{ volunteer_summary.volunteer_types | default('N/A') }}</p>
+            </div>
+        {% endif %}
+
+        {% if shelter_summary %}
+            <div class="shelter-summary">
+                <h3>Shelter Summary</h3>
+                <p><strong>Total Capacity:</strong> {{ shelter_summary.total_capacity | default(0) }}</p>
+                <p><strong>Total Occupancy:</strong> {{ shelter_summary.total_occupancy | default(0) }}</p>
+            </div>
+        {% endif %}
+        <a href="{{ url_for('dashboard') }}" class="back-button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+            Back to Dashboard
+        </a>
+    </div>
+</body>
+</html>
