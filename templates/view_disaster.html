@@ -1,18 +1,25 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        #updatePieChart {
+            width: 300px !important;  /* Set desired width */
+            height: 300px !important; /* Set desired height */
+        }
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Disaster Details - Sankalp</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         /* Custom styles for Sankalp - NDMA Disaster Management */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7fafc; /* Light background */
-            color: #2d3748; /* Darker text for better readability */
+            background-color: #f1f5f9; /* Lighter background */
+            color: #334155; /* Darker text for better readability */
         }
         .container {
             max-width: 800px; /* Increased max-width for larger screens */
@@ -32,10 +39,10 @@
         h2 {
             font-size: 1.5rem; /* Increased heading size */
             font-weight: 600; /* Semi-bold heading */
-            color: #4a5568; /* Darker heading */
+            color: #2d3748; /* Darker heading */
             margin-top: 2rem; /* Increased margin */
             margin-bottom: 1rem;
-            border-bottom: 2px solid #edf2f7; /* Subtler border */
+            border-bottom: 2px solid #e2e8f0; /* Subtler border */
             padding-bottom: 0.5rem;
         }
         p {
@@ -45,10 +52,10 @@
         }
         .info-box {
             padding: 1.5rem;
-            background-color: #f0f4c3; /* Light yellow for information boxes */
+            background-color: #fefcbf; /* Lighter yellow for information boxes */
             border-radius: 0.75rem;
             margin-bottom: 1.5rem;
-            border: 1px solid #e6d054;
+            border: 1px solid #fbd38d; /* Subtle yellow border */
         }
 
         .info-box h3{
@@ -61,18 +68,20 @@
             list-style-type: disc;
             margin-left: 2rem;
             margin-bottom: 1rem;
-
         }
          .info-box li{
              margin-bottom: 0.5rem;
         }
+        
+
+
 
         .resource-summary {
-            background-color: #e0f2fe; /* Light blue for resource summary */
+            background-color: #ebf8ff; /* Lighter blue for resource summary */
             padding: 1.5rem;
             border-radius: 0.75rem;
             margin-bottom: 1.5rem;
-            border: 1px solid #b7d9f3;
+            border: 1px solid #bee3f8; /* Soft cyan border */
         }
 
         .resource-summary h3{
@@ -81,12 +90,13 @@
             color: #1a202c;
             margin-bottom: 1rem;
         }
+
         .volunteer-summary {
-            background-color: #f0f4c3; /* Light yellow for volunteer summary */
+            background-color: #fefcbf; /* Lighter yellow for volunteer summary */
             padding: 1.5rem;
             border-radius: 0.75rem;
             margin-bottom: 1.5rem;
-            border: 1px solid #e6d054;
+            border: 1px solid #fbd38d;
         }
 
         .volunteer-summary h3{
@@ -97,11 +107,11 @@
         }
 
         .shelter-summary {
-            background-color: #e0f7fa;
+            background-color: #e6fffa; /* Very light cyan for shelter summary */
             padding: 1.5rem;
             border-radius: 0.75rem;
             margin-bottom: 1.5rem;
-            border: 1px solid #b2ebf2;
+            border: 1px solid #81e6d9; /* Soft cyan border */
         }
         .shelter-summary h3 {
             font-size: 1.25rem;
@@ -116,12 +126,12 @@
             margin-top: 2rem;
             border-radius: 0.75rem;
             overflow: hidden; /* For rounded corners of the table */
-            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04); /* Subtler shadow */
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04); /* Subtle shadow */
         }
         th, td {
             padding: 1rem;
             text-align: left;
-            border-bottom: 1px solid #edf2f7; /* Lighter border */
+            border-bottom: 1px solid #e2e8f0; /* Lighter border */
         }
         th {
             background-color: #f7fafc; /* Very light background for header */
@@ -135,7 +145,7 @@
             display: inline-flex;
             align-items: center;
             padding: 0.75rem 1.5rem;
-            background-color: #667eea; /* Indigo */
+            background-color: #7f9cf5; /* Soft indigo */
             color: #fff;
             font-weight: 600;
             border-radius: 0.5rem;
@@ -144,7 +154,7 @@
             margin-top: 1rem;
         }
         .back-button:hover {
-            background-color: #4338ca; /* Darker indigo on hover */
+            background-color: #5a67d8; /* Slightly darker indigo on hover */
         }
         .back-button svg {
             margin-right: 0.5rem;
@@ -172,69 +182,123 @@
                 <p><strong>Homeless:</strong> {{ latest_update.homeless }}</p>
                 <p><strong>Livelihood Lost:</strong> {{ latest_update.livelihood_lost }}</p>
                 <p><strong>Other Details:</strong> {{ latest_update.other_details }}</p>
+                <canvas id="updatePieChart" width="350" height="350"></canvas>
             </div>
         {% endif %}
 
         <h2>Volunteers</h2>
-        {% if volunteers %}
-            <ul>
+{% if volunteers %}
+    <div class="overflow-x-auto rounded-lg shadow-md">
+        <table class="min-w-full bg-white">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Contact</th>
+                </tr>
+            </thead>
+            <tbody>
                 {% for volunteer in volunteers %}
-                    <li>{{ volunteer.first_name }} {{ volunteer.last_name }} ({{ volunteer.volunteer_type }}, {{volunteer.contact_number}})</li>
+                <tr>
+                    <td>{{ volunteer.first_name }} {{ volunteer.last_name }}</td>
+                    <td>{{ volunteer.volunteer_type }}</td>
+                    <td>{{ volunteer.contact_number }}</td>
+                </tr>
                 {% endfor %}
-            </ul>
-        {% else %}
-            <p>No volunteers assigned to this disaster.</p>
-        {% endif %}
-
-        <h2>Resources</h2>
-        {% if resources %}
-            <ul>
-                {% for resource in resources %}
-                    <li>{{ resource.resource_name }} ({{ resource.resource_type }}, Quantity: {{resource.quantity}} {{resource.unit}})</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No resources allocated to this disaster.</p>
-        {% endif %}
-
-        <h2>Shelters</h2>
-        {% if shelters %}
-            <ul>
-                {% for shelter in shelters %}
-                    <li>{{ shelter.shelter_name }} (Capacity: {{ shelter.capacity }}, Occupancy: {{shelter.current_occupancy}}, Location: {{shelter.location}})</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No shelters assigned to this disaster.</p>
-        {% endif %}
-
-        {% if resource_summary %}
-            <div class="resource-summary">
-                <h3>Resource Summary</h3>
-                <p><strong>Total Resources Needed:</strong> {{ resource_summary.total_resources_needed | default(0) }}</p>
-                 <p><strong>Resource Types:</strong> {{ resource_summary.resource_types | default('N/A') }}</p>
-            </div>
-        {% endif %}
-
-        {% if volunteer_summary %}
-            <div class="volunteer-summary">
-                 <h3>Volunteer Summary</h3>
-                <p><strong>Active Volunteers:</strong> {{ volunteer_summary.active_volunteers | default(0) }}</p>
-                <p><strong>Volunteer Types:</strong> {{ volunteer_summary.volunteer_types | default('N/A') }}</p>
-            </div>
-        {% endif %}
-
-        {% if shelter_summary %}
-            <div class="shelter-summary">
-                <h3>Shelter Summary</h3>
-                <p><strong>Total Capacity:</strong> {{ shelter_summary.total_capacity | default(0) }}</p>
-                <p><strong>Total Occupancy:</strong> {{ shelter_summary.total_occupancy | default(0) }}</p>
-            </div>
-        {% endif %}
-        <a href="{{ url_for('dashboard') }}" class="back-button">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-            Back to Dashboard
-        </a>
+                
+            </tbody>
+        </table>
     </div>
+    <p class="mt-2 font-semibold">Total Volunteers: {{ volunteers|length }}</p>
+{% else %}
+    <p>No volunteers assigned to this disaster.</p>
+{% endif %}
+
+<h2>Resources</h2>
+{% if resources %}
+    <div class="overflow-x-auto rounded-lg shadow-md">
+        <table class="min-w-full bg-white">
+            <thead>
+                <tr>
+                    <th>Resource Name</th>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for resource in resources %}
+                <tr>
+                    <td>{{ resource.resource_name }}</td>
+                    <td>{{ resource.resource_type }}</td>
+                    <td>{{ resource.allocated_quantity }}</td>
+                    <td>{{ resource.unit }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="mt-2 font-semibold">Total Resources: {{ resources|length }}</p>
+{% else %}
+    <p>No resources allocated to this disaster.</p>
+{% endif %}
+
+<h2>Shelters</h2>
+{% if shelters %}
+    <div class="overflow-x-auto rounded-lg shadow-md">
+        <table class="min-w-full bg-white">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Capacity</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for shelter in shelters %}
+                <tr>
+                    <td>{{ shelter.shelter_name }}</td>
+                    <td>{{ shelter.location }}</td>
+                    <td>{{ shelter.capacity }}</td>
+                    
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p>Total Shelters: {{ shelters|length }}</p>
+    </div>
+    {% else %}
+    <p>No shelters assigned to this disaster.</p>
+    {% endif %}
+</div>
+{% if latest_update %}
+<script>
+    const data = {{ [latest_update.dead, latest_update.injured, latest_update.homeless, latest_update.livelihood_lost] | map('int') | list | tojson }};
+    const ctx = document.getElementById('updatePieChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Dead', 'Injured', 'Homeless', 'Livelihood Lost'],
+            datasets: [{
+                label: 'Impact',
+                data: data,
+                backgroundColor: ['#f56565', '#ed8936', '#ecc94b', '#4299e1'],
+                borderColor: '#fff',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                title: { display: true, text: 'Latest Disaster Impact Breakdown' }
+            }
+        }
+    });
+</script>
+{% endif %}
+
 </body>
-</html>
+

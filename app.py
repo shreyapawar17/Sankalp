@@ -740,48 +740,68 @@ def remove_resource_from_disaster(disaster_id, resource_id):
         db.close()
     return redirect(url_for('manage_resources', disaster_id=disaster_id))
 
-@app.route('/disaster/<int:disaster_id>/view')
+@app.route('/disaster/<int:disaster_id>/view_disaster')
 def view_disaster(disaster_id):
     db = get_db()  # Get the database connection
     cursor = db.cursor(dictionary=True)  # Use dictionary cursor for easier data retrieval
 
     try:
         # Fetch disaster details
-        cursor.execute("SELECT * FROM Disasters WHERE disaster_id = %s", (disaster_id,))
+        cursor.execute("SELECT * FROM disasters WHERE disaster_id = %s", (disaster_id,))
         disaster = cursor.fetchone()
+
+        cursor.execute("""
+            SELECT 
+                SUM(s.capacity) AS total_capacity
+            FROM shelters s
+            JOIN disastershelters ds ON s.shelter_id = ds.shelter_id
+            WHERE ds.disaster_id = %s
+        """, (disaster_id,))
+
+        shelter_summary = cursor.fetchone()
 
         # Fetch related data using JOINs
         cursor.execute("""
             SELECT v.*
-            FROM Volunteers v
-            JOIN DisasterVolunteers dv ON v.volunteer_id = dv.volunteer_id
-            WHERE dv.disaster_id = %s AND dv.is_active = 1
+            FROM volunteers v
+            JOIN disastervolunteers dv ON v.volunteer_id = dv.volunteer_id
+            WHERE dv.disaster_id = %s AND v.is_active = 1
         """, (disaster_id,))
         volunteers = cursor.fetchall()
 
+        # Fetch resources and related details
         cursor.execute("""
-            SELECT r.*
-            FROM Resources r
-            JOIN DisasterResources dr ON r.resource_id = dr.resource_id
+            SELECT r.resource_id, r.resource_name, r.resource_type,
+                   dr.quantity_allocated AS allocated_quantity, r.unit, r.location, r.latitude, r.longitude
+                   
+            FROM disasterresources dr
+            JOIN resources r ON dr.resource_id = r.resource_id
             WHERE dr.disaster_id = %s
         """, (disaster_id,))
         resources = cursor.fetchall()
 
-        cursor.execute("SELECT * FROM Shelters WHERE disaster_id = %s", (disaster_id,))
+        # Fetch shelter details
+        cursor.execute("""
+            SELECT s.*
+            FROM shelters s
+            JOIN disastershelters ds ON s.shelter_id = ds.shelter_id
+            WHERE ds.disaster_id = %s
+        """, (disaster_id,))
         shelters = cursor.fetchall()
 
-        cursor.execute("SELECT * FROM DisasterUpdates WHERE disaster_id = %s ORDER BY update_timestamp DESC", (disaster_id,))
+        # Fetch disaster updates
+        cursor.execute("SELECT * FROM disasterupdates WHERE disaster_id = %s ORDER BY update_timestamp DESC", (disaster_id,))
         updates = cursor.fetchall()
 
-        # Calculate summary information
+        # Calculate summary information for the latest update
         latest_update = updates[0] if updates else None
 
         cursor.execute("""
             SELECT
                 SUM(dr.quantity_needed) AS total_resources,
                 GROUP_CONCAT(r.resource_type) AS resource_types
-            FROM DisasterResources dr
-            JOIN Resources r ON dr.resource_id = r.resource_id
+            FROM disasterresources dr
+            JOIN resources r ON dr.resource_id = r.resource_id
             WHERE dr.disaster_id = %s
         """, (disaster_id,))
         resource_summary = cursor.fetchone()
@@ -790,9 +810,9 @@ def view_disaster(disaster_id):
             SELECT
                 COUNT(dv.volunteer_id) AS active_volunteers,
                 GROUP_CONCAT(v.volunteer_type) AS volunteer_types
-            FROM DisasterVolunteers dv
-            JOIN Volunteers v ON dv.volunteer_id = v.volunteer_id
-            WHERE dv.disaster_id = %s AND dv.is_active = 1
+            FROM disastervolunteers dv
+            JOIN volunteers v ON dv.volunteer_id = v.volunteer_id
+            WHERE dv.disaster_id = %s AND v.is_active = 1
         """, (disaster_id,))
         volunteer_summary = cursor.fetchone()
 
@@ -804,7 +824,8 @@ def view_disaster(disaster_id):
                                updates=updates,
                                latest_update=latest_update,
                                resource_summary=resource_summary,
-                               volunteer_summary=volunteer_summary)
+                               volunteer_summary=volunteer_summary,
+                               shelter_summary=shelter_summary)
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")  # Log the error
@@ -814,25 +835,8 @@ def view_disaster(disaster_id):
     finally:
         cursor.close()
         db.close()
-@app.route('/disaster/<int:disaster_id>/work_progress')
-def work_progress(disaster_id):
-    cursor = mysql.connection.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT r.resource_id, r.resource_name,
-               dr.quantity_allocated AS allocated_quantity,
-               dr.status
-        FROM disasterresources dr
-        JOIN resources r ON dr.resource_id = r.resource_id
-        WHERE dr.disaster_id = %s
-    """, (disaster_id,))
-    resources = cursor.fetchall()
-    cursor.close()
-    
-    print("=== RESOURCES ===")
-    for r in resources:
-        print(r)
-    
-    return render_template('work_progress.html', disaster_id=disaster_id, resources=resources)
+
+
 
 
 if __name__ == '__main__':
