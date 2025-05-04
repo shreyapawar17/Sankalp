@@ -1,5 +1,7 @@
 **Sankalp** 
 
+Neon Hackers- Codesprint
+
 **Sankalp** is a centralized, web-based disaster management system tailored for  **NDMA** (National Disaster Management Authority), state disaster response teams, and local administrative bodies. It empowers authorities to respond swiftly, efficiently, and in a coordinated manner during crises.
 
 In times of disaster, timely coordination is critical. Sankalp streamlines four core operations for government agencies and emergency managers:
@@ -20,3 +22,4 @@ Database: MySQL with normalized schema and mysql-connector-python
 Security: Passwords hashed with bcrypt
 
 Additional Tools: Bootstrap/Tailwind for responsive UI, Google Fonts for styling
+
