@@ -4,45 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Resources - Disaster: {{ disaster.disaster_name }} (ID: {{ disaster_id }}) - Sankalp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Font Awesome Icons -->
     <style>
-        /* Basic styling - adapt to your existing styles */
-        body { font-family: sans-serif; margin: 20px; }
-        h1, h2 { color: #333; }
-        .resource-section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-        ul { list-style: none; padding: 0; }
-        li { margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .resource-info { flex-grow: 1; }
-        .quantity-info { margin-left: 20px; display: flex; gap: 15px; align-items: center; }
-        .form-group { margin-bottom: 10px; }
-        label { display: block; margin-bottom: 5px; }
-        input[type="number"], select { width: 150px; padding: 5px; border: 1px solid #ccc; border-radius: 3px; }
-        button { padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        .remove-button { background-color: #dc3545; }
-        .remove-button:hover { background-color: #c82333; }
-        a { color: #007bff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #f4f6f9;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .resource-section {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .resource-section h2 {
+            color: #3498db;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .resource-info {
+            flex-grow: 1;
+            font-weight: bold;
+        }
+
+        .quantity-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"], select {
+            width: 150px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .remove-button {
+            background-color: #dc3545;
+        }
+
+        .remove-button:hover {
+            background-color: #c82333;
+        }
+
+        a {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #555;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #333;
+        }
+
+        .resource-section ul li i {
+            font-size: 1.1em;
+            margin-right: 10px;
+        }
+
+        .form-group select, .form-group input {
+            width: 180px;
+        }
+
+        .quantity-info span {
+            font-size: 1em;
+            color: #555;
+        }
+
+        .resource-section ul li:hover {
+            background-color: #f9fafb;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <h1>Manage Resources - Disaster: {{ disaster.disaster_name }} (ID: {{ disaster_id }})</h1>
 
     <div class="resource-section">
-        <h2>Current Resource Allocation</h2>
+        <h2><i class="fas fa-cogs"></i> Current Resource Allocation</h2>
         {% if disaster_resources_data %}
             <ul>
                 {% for resource_id, data in disaster_resources_data.items() %}
                     <li>
                         <div class="resource-info">
-                            <strong>{{ data.resource_name }}</strong>
+                            <i class="fas fa-box"></i>
+                            <strong>{{ data.resource_name }}</strong> 
                             ({{ data.resource_type }} - {{ all_resources[resource_id].unit }})
                         </div>
                         <div class="quantity-info">
-                            <span>Allotted: {{ data.quantity_needed }}</span>
-                            <span>Available: {{ data.quantity_available }}</span>
-                            <span>Allocated: {{ data.quantity_allocated }}</span>
+                            <span>Allotted: <strong>{{ data.quantity_needed }}</strong></span>
+                            <span>Available: <strong>{{ data.quantity_available }}</strong></span>
+                            <span>Allocated: <strong>{{ data.quantity_allocated }}</strong></span>
                             <form method="POST" action="{{ url_for('remove_resource_from_disaster', disaster_id=disaster_id, resource_id=resource_id) }}" style="display: inline;">
-                                <button type="submit" class="remove-button">Remove</button>
+                                <button type="submit" class="remove-button"><i class="fas fa-trash-alt"></i> Remove</button>
                             </form>
                         </div>
                     </li>
@@ -54,7 +165,7 @@
     </div>
 
     <div class="resource-section">
-        <h2>Add Resource Allocation</h2>
+        <h2><i class="fas fa-plus-circle"></i> Add Resource Allocation</h2>
         <form method="POST" action="{{ url_for('add_resource_to_disaster', disaster_id=disaster_id) }}">
             <div class="form-group">
                 <label for="resource_id">Resource:</label>
@@ -68,10 +179,10 @@
                 <label for="quantity">Quantity to Allot:</label>
                 <input type="number" name="quantity" id="quantity" value="1" min="1">
             </div>
-            <button type="submit">Add Resource Allocation</button>
+            <button type="submit"><i class="fas fa-plus"></i> Add Resource Allocation</button>
         </form>
     </div>
 
-    <a href="{{ url_for('manage_disaster', disaster_id=disaster_id) }}">Back to Manage Disaster</a>
+    <a href="{{ url_for('manage_disaster', disaster_id=disaster_id) }}"><i class="fas fa-arrow-left"></i> Back to Manage Disaster</a>
 </body>
 </html>

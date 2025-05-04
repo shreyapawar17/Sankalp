@@ -1,88 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Disaster - {{ disaster.disaster_name }} - Sankalp</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f7fa; /* Light grey background */
-            color: #333;
-        }
-        h1 {
-            color: #d32f2f;
-            text-align: center;
-            margin-top: 50px;
-            font-size: 2.5em;
-        }
-        .manage-options {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 500px;
-            margin: 30px auto;
-            text-align: center;
-        }
-        .manage-options h2 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #007bff;
-            font-size: 1.8em;
-        }
-        .manage-button {
-            display: block;
-            padding: 12px 20px;
-            margin-bottom: 15px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease, transform 0.2s;
-        }
-        .manage-button:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-        }
-        .manage-button i {
-            margin-right: 8px;
-        }
-        .back-link {
-            display: block;
-            margin-top: 30px;
-            text-align: center;
-            color: #6c757d;
-            text-decoration: none;
-            font-size: 1.1em;
-        }
-        .back-link:hover {
-            color: #5a6268;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Disaster - {{ disaster.disaster_name }} - Sankalp</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
+      color: #333;
+    }
+
+    h1 {
+      color: #b71c1c;
+      text-align: center;
+      margin-top: 50px;
+      font-size: 2.8em;
+      text-shadow: 1px 1px 2px #ccc;
+    }
+
+    .manage-options {
+      background-color: #fff;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      width: 90%;
+      max-width: 520px;
+      margin: 40px auto;
+      text-align: center;
+    }
+
+    .manage-options h2 {
+      margin-top: 0;
+      margin-bottom: 25px;
+      color: #0d47a1;
+      font-size: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .manage-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 20px;
+      margin: 12px 0;
+      background: linear-gradient(to right, #42a5f5, #1e88e5);
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1.1em;
+      box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+      transition: background 0.3s ease, transform 0.2s;
+    }
+
+    .manage-button:hover {
+      background: linear-gradient(to right, #1e88e5, #1565c0);
+      transform: scale(1.03);
+    }
+
+    .manage-button:nth-child(3) {
+      background: linear-gradient(to right, #66bb6a, #43a047);
+      box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+    }
+
+    .manage-button:nth-child(3):hover {
+      background: linear-gradient(to right, #43a047, #2e7d32);
+    }
+
+    .manage-button:nth-child(4) {
+      background: linear-gradient(to right, #ffca28, #f9a825);
+      box-shadow: 0 4px 10px rgba(255, 202, 40, 0.3);
+    }
+
+    .manage-button:nth-child(4):hover {
+      background: linear-gradient(to right, #f9a825, #f57f17);
+    }
+
+    .manage-button:nth-child(5) {
+      background: linear-gradient(to right, #ef5350, #e53935);
+      box-shadow: 0 4px 10px rgba(244, 67, 54, 0.3);
+    }
+
+    .manage-button:nth-child(5):hover {
+      background: linear-gradient(to right, #e53935, #c62828);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 30px;
+      color: #6c757d;
+      text-decoration: none;
+      font-size: 1.1em;
+      transition: color 0.3s ease;
+    }
+
+    .back-link i {
+      margin-right: 6px;
+    }
+
+    .back-link:hover {
+      color: #424242;
+    }
+  </style>
 </head>
 <body>
-    <h1><i class="fas fa-exclamation-triangle"></i> Manage Disaster</h1>
-    <div class="manage-options">
-        <h2><i class="fas fa-cogs"></i> {{ disaster.disaster_name }}</h2>
-        <a href="{{ url_for('manage_updates', disaster_id=disaster.disaster_id) }}" class="manage-button">
-            <i class="fas fa-edit"></i> Manage Updates
-        </a>
-        <a href="{{ url_for('manage_shelters', disaster_id=disaster.disaster_id) }}" class="manage-button">
-            <i class="fas fa-hotel"></i> Manage Shelters
-        </a>
-        <a href="{{ url_for('manage_volunteers', disaster_id=disaster.disaster_id) }}" class="manage-button">
-            <i class="fas fa-users"></i> Manage Volunteers
-        </a>
-        <a href="{{ url_for('manage_resources', disaster_id=disaster.disaster_id) }}" class="manage-button">
-            <i class="fas fa-boxes"></i> Manage Resources
-        </a>
-        <a href="{{ url_for('dashboard') }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
-    </div>
+  <h1><i class="fas fa-exclamation-triangle"></i> Manage Disaster</h1>
+  <div class="manage-options">
+    <h2><i class="fas fa-cogs"></i> {{ disaster.disaster_name }}</h2>
+
+    <a href="{{ url_for('manage_updates', disaster_id=disaster.disaster_id) }}" class="manage-button">
+      <i class="fas fa-edit"></i> Manage Updates
+    </a>
+
+    <a href="{{ url_for('manage_shelters', disaster_id=disaster.disaster_id) }}" class="manage-button">
+      <i class="fas fa-hotel"></i> Manage Shelters
+    </a>
+
+    <a href="{{ url_for('manage_volunteers', disaster_id=disaster.disaster_id) }}" class="manage-button">
+      <i class="fas fa-users"></i> Manage Volunteers
+    </a>
+
+    <a href="{{ url_for('manage_resources', disaster_id=disaster.disaster_id) }}" class="manage-button">
+      <i class="fas fa-boxes"></i> Manage Resources
+    </a>
+
+    <a href="{{ url_for('dashboard') }}" class="back-link">
+      <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+  </div>
 </body>
 </html>
+

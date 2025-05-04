@@ -4,142 +4,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Shelters - Disaster ID {{ disaster_id }} - Sankalp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ... (your existing styles) ... */
-        .unallocated-shelters {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 20px;
+            background: linear-gradient(to right, #f5f7fa, #c3cfe2);
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #d32f2f;
             margin-bottom: 20px;
         }
-        .unallocated-shelters h2 {
+
+        h2 {
             color: #28a745;
-            margin-top: 0;
             margin-bottom: 15px;
             text-align: center;
         }
+
+        .shelter-list, .unallocated-shelters, .add-shelter-form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .shelter-list h2,
+        .unallocated-shelters h2 {
+            color: #28a745;
+        }
+
+        .shelter-item,
         .unallocated-shelter-item {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 10px;
         }
+
+        .shelter-item:last-child,
         .unallocated-shelter-item:last-child {
             border-bottom: none;
         }
-        .allocate-form {
-            display: inline-block;
-        }
+
+        .shelter-actions a,
         .allocate-button {
-            background-color: #28a745;
-            color: white;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 0.9em;
-        }
-        .allocate-button:hover {
-            background-color: #218838;
-        }
-        .shelter-actions a {
             margin-left: 10px;
             text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 4px;
+            padding: 8px 12px;
+            border-radius: 6px;
             font-size: 0.9em;
+            cursor: pointer;
         }
+
         .shelter-actions a:first-child {
             background-color: #007bff;
             color: white;
         }
+
         .shelter-actions a:first-child:hover {
             background-color: #0056b3;
         }
+
         .shelter-actions a:last-child {
             background-color: #dc3545;
             color: white;
         }
+
         .shelter-actions a:last-child:hover {
             background-color: #c82333;
         }
-        .add-shelter-form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            margin-bottom: 20px;
+
+        .allocate-button {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
         }
+
+        .allocate-button:hover {
+            background-color: #218838;
+        }
+
         .add-shelter-form h2 {
+            text-align: center;
             color: #333;
             margin-top: 0;
-            margin-bottom: 15px;
-            text-align: center;
         }
+
         .add-shelter-form label {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
+            color: #007bff;
         }
+
         .add-shelter-form input[type="text"],
         .add-shelter-form input[type="number"] {
-            width: calc(50% - 10px); /* Adjust width for better layout */
-            padding: 8px;
+            width: calc(50% - 10px);
+            padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 6px;
             box-sizing: border-box;
-            display: inline-block; /* Display inputs inline */
-            margin-right: 10px;
+            display: inline-block;
         }
+
         .add-shelter-form input[type="text"]:last-child,
         .add-shelter-form input[type="number"]:last-child {
             margin-right: 0;
         }
+
         .add-shelter-form button[type="submit"] {
             background-color: #007bff;
             color: white;
             padding: 10px 15px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 1em;
             margin-top: 15px;
         }
+
         .add-shelter-form button[type="submit"]:hover {
             background-color: #0056b3;
         }
+
         .back-link {
             display: inline-block;
             margin-top: 15px;
             color: #007bff;
             text-decoration: none;
         }
+
         .back-link:hover {
             text-decoration: underline;
         }
-        .shelter-list h2,
-        .unallocated-shelters h2 {
-            margin-top: 20px;
-        }
-        .shelter-item {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .shelter-item:last-child {
-            border-bottom: none;
-        }
+
         .shelter-details p {
             margin: 5px 0;
+        }
+
+        /* Icons for the shelter list */
+        .shelter-item i {
+            color: #007bff;
+            margin-right: 10px;
+        }
+
+        .shelter-actions i {
+            margin-right: 5px;
+        }
+
+        /* Responsive Layout */
+        @media (max-width: 768px) {
+            .shelter-list, .unallocated-shelters, .add-shelter-form {
+                width: 95%;
+            }
+
+            .add-shelter-form input[type="text"],
+            .add-shelter-form input[type="number"] {
+                width: 100%;
+                margin-right: 0;
+            }
         }
     </style>
 </head>
@@ -147,25 +183,25 @@
     <h1>Manage Shelters - Disaster: {{ disaster.disaster_name }} (ID: {{ disaster_id }})</h1>
 
     <div class="shelter-list">
-        <h2>Allocated Shelters</h2>
+        <h2><i class="fas fa-home"></i> Allocated Shelters</h2>
         {% if allocated_shelters %}
             {% for shelter in allocated_shelters %}
                 <div class="shelter-item">
                     <div class="shelter-details">
-                        <p><strong>Name:</strong> {{ shelter.shelter_name }} ({{ shelter.shelter_type }})</p>
-                        <p><strong>Location:</strong> {{ shelter.location }}</p>
-                        <p><strong>Capacity:</strong> {{ shelter.capacity }} / <strong>Occupied:</strong> {{ shelter.current_occupancy }}</p>
+                        <p><i class="fas fa-building"></i><strong>Name:</strong> {{ shelter.shelter_name }} ({{ shelter.shelter_type }})</p>
+                        <p><i class="fas fa-map-marker-alt"></i><strong>Location:</strong> {{ shelter.location }}</p>
+                        <p><i class="fas fa-users"></i><strong>Capacity:</strong> {{ shelter.capacity }} / <strong>Occupied:</strong> {{ shelter.current_occupancy }}</p>
                         {% if shelter.contact_person %}
-                            <p><strong>Contact:</strong> {{ shelter.contact_person }} ({{ shelter.contact_number }})</p>
+                            <p><i class="fas fa-phone"></i><strong>Contact:</strong> {{ shelter.contact_person }} ({{ shelter.contact_number }})</p>
                         {% endif %}
                         {% if shelter.latitude and shelter.longitude %}
-                            <p><strong>Coordinates:</strong> {{ shelter.latitude }}, {{ shelter.longitude }}</p>
+                            <p><i class="fas fa-globe"></i><strong>Coordinates:</strong> {{ shelter.latitude }}, {{ shelter.longitude }}</p>
                         {% endif %}
                     </div>
                     <div class="shelter-actions">
-                        <a href="{{ url_for('edit_shelter', disaster_id=disaster_id, shelter_id=shelter.shelter_id) }}">Edit</a>
+                        <a href="{{ url_for('edit_shelter', disaster_id=disaster_id, shelter_id=shelter.shelter_id) }}"><i class="fas fa-edit"></i>Edit</a>
                         <form method="POST" action="{{ url_for('delete_shelter', disaster_id=disaster_id, shelter_id=shelter.shelter_id) }}" onsubmit="return confirm('Are you sure you want to deallocate this shelter?')">
-                            <button type="submit" class="deallocate-button">Deallocate</button>
+                            <button type="submit" class="deallocate-button"><i class="fas fa-times"></i> Deallocate</button>
                         </form>
                     </div>
                 </div>
@@ -176,17 +212,17 @@
     </div>
 
     <div class="unallocated-shelters">
-        <h2>Nearby Available Shelters</h2>
+        <h2><i class="fas fa-building"></i> Nearby Available Shelters</h2>
         {% if unallocated_shelters %}
             {% for shelter in unallocated_shelters %}
                 <div class="unallocated-shelter-item">
                     <p><strong>Name:</strong> {{ shelter.shelter_name }} ({{ shelter.shelter_type }}) - {{ shelter.location }}
                         {% if shelter.distance_to_disaster %}
-                            (Distance: {{ shelter.distance_to_disaster }})
+                            (Distance: {{ shelter.distance_to_disaster }} km)
                         {% endif %}
                     </p>
                     <form class="allocate-form" method="POST" action="{{ url_for('allocate_shelter', disaster_id=disaster_id, shelter_id=shelter.shelter_id) }}">
-                        <button type="submit" class="allocate-button">Allocate to this Disaster</button>
+                        <button type="submit" class="allocate-button"><i class="fas fa-check-circle"></i> Allocate to this Disaster</button>
                     </form>
                 </div>
             {% endfor %}
@@ -196,7 +232,7 @@
     </div>
 
     <div class="add-shelter-form">
-        <h2>Add New Shelter</h2>
+        <h2><i class="fas fa-plus-circle"></i> Add New Shelter</h2>
         <form method="POST" action="{{ url_for('add_shelter', disaster_id=disaster_id) }}">
             <label for="shelter_name">Shelter Name:</label>
             <input type="text" id="shelter_name" name="shelter_name" required>
@@ -222,18 +258,18 @@
             <label for="contact_number">Contact Number (Optional):</label>
             <input type="text" id="contact_number" name="contact_number">
 
-            <button type="submit">Add Shelter</button>
+            <button type="submit"><i class="fas fa-plus"></i> Add Shelter</button>
         </form>
     </div>
 
-    <a href="{{ url_for('manage_disaster', disaster_id=disaster_id) }}" class="back-link">Back to Manage Disaster</a>
+    <a href="{{ url_for('manage_disaster', disaster_id=disaster_id) }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Manage Disaster</a>
 
     <script>
         const locationInput = document.getElementById('location');
         const latitudeInput = document.getElementById('latitude');
         const longitudeInput = document.getElementById('longitude');
 
-        locationInput.addEventListener('blur', geocodeLocation); // Or 'input' for more immediate updates
+        locationInput.addEventListener('blur', geocodeLocation);
 
         function geocodeLocation() {
             const location = locationInput.value.trim();
@@ -250,18 +286,12 @@
                     if (data.latitude && data.longitude) {
                         latitudeInput.value = data.latitude;
                         longitudeInput.value = data.longitude;
-                    } else if (data.error) {
-                        console.error('Geocoding error:', data.error);
-                        latitudeInput.value = '';
-                        longitudeInput.value = '';
-                        // Optionally display an error message to the user
                     }
                 })
                 .catch(error => {
                     console.error('Fetch error:', error);
                     latitudeInput.value = '';
                     longitudeInput.value = '';
-                    // Optionally display an error message to the user
                 });
             } else {
                 latitudeInput.value = '';

@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Volunteers - Disaster: {{ disaster.disaster_name }} (ID: {{ disaster_id }}) - Sankalp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Font Awesome Icons -->
     <style>
         body {
-            font-family: sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f6f9;
             color: #333;
+            margin: 20px;
         }
 
         h1 {
@@ -23,15 +24,16 @@
             margin-bottom: 25px;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border: 1px solid #e0e0e0;
         }
 
         .volunteer-section h2 {
             color: #3498db;
-            border-bottom: 2px solid #3498db;
+            border-bottom: 3px solid #3498db;
             padding-bottom: 10px;
             margin-bottom: 15px;
+            font-size: 1.5em;
         }
 
         .volunteer-table {
@@ -42,13 +44,18 @@
 
         .volunteer-table th, .volunteer-table td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px 15px;
             text-align: left;
         }
 
         .volunteer-table th {
             background-color: #f2f2f2;
             color: #333;
+        }
+
+        .volunteer-table td {
+            background-color: #fff;
+            color: #555;
         }
 
         .active {
@@ -62,23 +69,23 @@
         }
 
         .assign-form, .unassign-form {
-            margin: 0; /* Remove extra margin for buttons in table cells */
+            margin: 0;
             display: inline-block;
         }
 
         .assign-button, .unassign-button {
-            background-color: #4CAF50; /* Green */
+            background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 6px 10px;
+            padding: 8px 12px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 0.8em;
-            border-radius: 4px;
+            font-size: 0.9em;
+            border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            margin-bottom: 5px; /* Add a little space below buttons */
+            margin: 5px;
         }
 
         .assign-button:hover {
@@ -86,7 +93,7 @@
         }
 
         .unassign-button {
-            background-color: #f44336; /* Red */
+            background-color: #f44336;
         }
 
         .unassign-button:hover {
@@ -113,13 +120,23 @@
         .back-link:hover {
             background-color: #333;
         }
+
+        .volunteer-table td i {
+            font-size: 1.2em;
+        }
+
+        /* Add custom hover effect on table rows */
+        .volunteer-table tr:hover {
+            background-color: #f9fafb;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <h1>Manage Volunteers - Disaster: {{ disaster.disaster_name }} (ID: {{ disaster_id }})</h1>
 
     <div class="volunteer-section">
-        <h2>Currently Appointed Volunteers</h2>
+        <h2><i class="fas fa-users"></i> Currently Appointed Volunteers</h2>
         {% if appointed_volunteers %}
             <table class="volunteer-table">
                 <thead>
@@ -141,10 +158,10 @@
                             <td>{{ volunteer.secondary_contact_number or '-' }}</td>
                             <td>{{ volunteer.email }}</td>
                             <td>{{ volunteer.volunteer_type }}</td>
-                            <td class="active">Active</td>
+                            <td class="active">Active <i class="fas fa-check-circle"></i></td>
                             <td>
                                 <form class="unassign-form" method="POST" action="{{ url_for('unassign_volunteer', disaster_id=disaster.disaster_id, volunteer_id=volunteer.volunteer_id) }}">
-                                    <button type="submit" class="unassign-button">Unassign</button>
+                                    <button type="submit" class="unassign-button"><i class="fas fa-times-circle"></i> Unassign</button>
                                 </form>
                             </td>
                         </tr>
@@ -157,7 +174,7 @@
     </div>
 
     <div class="volunteer-section">
-        <h2>Nearby Active Volunteers Available for Appointment</h2>
+        <h2><i class="fas fa-users-cog"></i> Nearby Active Volunteers Available for Appointment</h2>
         {% if nearby_active_unassigned_volunteers %}
             <table class="volunteer-table">
                 <thead>
@@ -180,11 +197,11 @@
                             <td>{{ volunteer.secondary_contact_number or '-' }}</td>
                             <td>{{ volunteer.email }}</td>
                             <td>{{ volunteer.volunteer_type }}</td>
-                            <td class="active">Active</td>
+                            <td class="active">Active <i class="fas fa-check-circle"></i></td>
                             <td class="proximity">({{ volunteer.distance }})</td>
                             <td>
                                 <form class="assign-form" method="POST" action="{{ url_for('assign_volunteer', disaster_id=disaster.disaster_id, volunteer_id=volunteer.volunteer_id) }}">
-                                    <button type="submit" class="assign-button">Appoint</button>
+                                    <button type="submit" class="assign-button"><i class="fas fa-plus-circle"></i> Appoint</button>
                                 </form>
                             </td>
                         </tr>
@@ -196,6 +213,6 @@
         {% endif %}
     </div>
 
-    <a href="{{ url_for('manage_disaster', disaster_id=disaster_id) }}" class="back-link">Back to Manage Disaster</a>
+    <a href="{{ url_for('manage_disaster', disaster_id=disaster_id) }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Manage Disaster</a>
 </body>
 </html>

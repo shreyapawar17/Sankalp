@@ -4,78 +4,114 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Updates - Disaster ID {{ disaster_id }} - Sankalp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 20px;
-            background-color: #f4f4f4;
+            background: linear-gradient(to right, #f5f7fa, #c3cfe2);
             color: #333;
         }
+
         h1, h2 {
             color: #d32f2f;
             text-align: center;
             margin-bottom: 20px;
         }
-        .update-list {
+
+        .update-list, .add-update-form {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
         }
+
         .update-item {
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
             margin-bottom: 10px;
         }
+
         .update-item:last-child {
             border-bottom: none;
         }
+
         .update-item p {
             margin: 5px 0;
         }
-        .add-update-form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            margin: 0 auto 20px;
-        }
+
         .add-update-form label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
             font-weight: bold;
+            color: #007bff;
         }
+
         .add-update-form input[type="number"] {
             width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 6px;
             box-sizing: border-box;
+            font-size: 1.1em;
         }
+
         .add-update-form button {
             background-color: #4CAF50;
             color: white;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-size: 1.1em;
             cursor: pointer;
             font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s;
         }
+
         .add-update-form button:hover {
             background-color: #45a049;
+            transform: translateY(-2px);
         }
+
+        .add-update-form button i {
+            margin-right: 8px;
+        }
+
         .back-link {
             display: block;
             margin-top: 20px;
             text-align: center;
             color: #6c757d;
             text-decoration: none;
+            font-size: 1.1em;
         }
+
         .back-link:hover {
             color: #5a6268;
+        }
+
+        .update-item i {
+            color: #388e3c;
+            margin-right: 10px;
+        }
+
+        .update-item strong {
+            color: #1976d2;
+        }
+
+        .update-list {
+            max-width: 900px;
+        }
+
+        @media (max-width: 768px) {
+            .update-list, .add-update-form {
+                width: 95%;
+            }
         }
     </style>
 </head>
@@ -87,12 +123,12 @@
         {% if updates %}
             {% for update in updates %}
                 <div class="update-item">
-                    <p><strong>Timestamp:</strong> {{ update.update_timestamp }}</p>
-                    <p><strong>Total Affected:</strong> {{ update.total_affected }}</p>
-                    <p><strong>Dead:</strong> {{ update.dead }}</p>
-                    <p><strong>Injured:</strong> {{ update.injured }}</p>
-                    <p><strong>Homeless:</strong> {{ update.homeless }}</p>
-                    <p><strong>Livelihood Lost:</strong> {{ update.livelihood_lost }}</p>
+                    <p><i class="fas fa-clock"></i><strong>Timestamp:</strong> {{ update.update_timestamp }}</p>
+                    <p><i class="fas fa-users"></i><strong>Total Affected:</strong> {{ update.total_affected }}</p>
+                    <p><i class="fas fa-skull-crossbones"></i><strong>Dead:</strong> {{ update.dead }}</p>
+                    <p><i class="fas fa-heartbeat"></i><strong>Injured:</strong> {{ update.injured }}</p>
+                    <p><i class="fas fa-home"></i><strong>Homeless:</strong> {{ update.homeless }}</p>
+                    <p><i class="fas fa-briefcase"></i><strong>Livelihood Lost:</strong> {{ update.livelihood_lost }}</p>
                 </div>
             {% endfor %}
         {% else %}
@@ -101,7 +137,7 @@
     </div>
 
     <div class="add-update-form">
-        <h2>Add New Update</h2>
+        <h2><i class="fas fa-plus-circle"></i> Add New Update</h2>
         <form method="POST" action="{{ url_for('add_update', disaster_id=disaster_id) }}">
             <label for="total_affected">Total People Affected:</label>
             <input type="number" id="total_affected" name="total_affected" value="0" min="0">
@@ -118,10 +154,10 @@
             <label for="livelihood_lost">Livelihood Lost:</label>
             <input type="number" id="livelihood_lost" name="livelihood_lost" value="0" min="0">
 
-            <button type="submit">Add Update</button>
+            <button type="submit"><i class="fas fa-plus"></i> Add Update</button>
         </form>
     </div>
 
-    <a href="{{ url_for('manage_disaster', disaster_id=disaster_id) }}" class="back-link">Back to Manage Disaster</a>
+    <a href="{{ url_for('manage_disaster', disaster_id=disaster_id) }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Manage Disaster</a>
 </body>
 </html>
