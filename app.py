@@ -1,8 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session, g,flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
 import mysql.connector
 import bcrypt
 import secrets
-import os
 import requests
 import logging
 import math
@@ -13,13 +12,12 @@ app = Flask(__name__, template_folder='templates')
 app.jinja_env.auto_reload = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-logging.basicConfig(level=logging.INFO)  # Configure logging
+logging.basicConfig(level=logging.INFO)  
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
 
-# Replace with your preferred geocoding API and API key
 GEOCODING_API_URL = "https://api.opencagedata.com/geocode/v1/json"
 GEOCODING_API_KEY = 'f57f1e8672d546038a9703151c474d9d'
 
@@ -46,7 +44,7 @@ def get_geocode(location_name):
     }
     try:
         response = requests.get(GEOCODING_API_URL, params=params)
-        response.raise_for_status()  # Raise an exception for bad status codes
+        response.raise_for_status()  
         data = response.json()
         if data and data.get('results') and len(data['results']) > 0:
             latitude = data['results'][0]['geometry']['lat']
@@ -64,7 +62,7 @@ def get_geocode(location_name):
         return None, None
 
 def haversine(lat1, lon1, lat2, lon2):
-    R = 6371  # Radius of the Earth in kilometers
+    R = 6371  
     lat1_rad = math.radians(lat1)
     lon1_rad = math.radians(lon1)
     lat2_rad = math.radians(lat2)
@@ -137,7 +135,7 @@ def index():
 def login():
     if request.method == 'POST':
         username = request.form['username']
-        password = request.form['password'].encode('utf-8') # Encode for bcrypt
+        password = request.form['password'].encode('utf-8') 
 
         db = get_db()
         cursor = db.cursor(dictionary=True)
@@ -171,14 +169,14 @@ def register():
         db = get_db()
         cursor = db.cursor()
         try:
-            # Check if the username already exists
+            
             cursor.execute("SELECT username FROM Employees WHERE username = %s", (username,))
             existing_user = cursor.fetchone()
             if existing_user:
                 flash('Username already exists. Please choose a different one.', 'warning')
                 return render_template('register.html')
 
-            # Insert the new user into the database, including full_name and role
+          
             insert_query = "INSERT INTO Employees (username, password, full_name, role) VALUES (%s, %s, %s, %s)"
             cursor.execute(insert_query, (username, hashed_password, full_name, role))
             db.commit()
@@ -204,7 +202,7 @@ def dashboard():
     search_query = request.args.get('search_query')
 
     if search_query:
-        # Construct your SQL query to search across relevant fields
+        
         query = """
         SELECT disaster_id, disaster_name, disaster_type, location, start_date
         FROM Disasters
@@ -214,7 +212,7 @@ def dashboard():
         cursor.execute(query, (search_term, search_term, search_term))
         disasters = cursor.fetchall()
     else:
-        # If no search query, fetch all current disasters
+        
         cursor.execute("SELECT disaster_id, disaster_name, disaster_type, location, start_date FROM Disasters")
         disasters = cursor.fetchall()
 
@@ -235,7 +233,7 @@ def remove_disaster(disaster_id):
         logging.info(f"Disaster ID {disaster_id} removed.")
     except mysql.connector.Error as err:
         logging.error(f"Error removing disaster {disaster_id}: {err}")
-        # Consider adding a flash message to inform the user about the error
+       
     finally:
         cursor.close()
         db.close()
@@ -254,8 +252,8 @@ def manage_disaster(disaster_id):
     if disaster:
         return render_template('manage_disaster.html', disaster=disaster)
     else:
-        # Handle the case where the disaster ID is not found
-        return redirect(url_for('dashboard')) # Or display an error message
+       
+        return redirect(url_for('dashboard')) 
 
 
 
@@ -293,7 +291,7 @@ def add_update(disaster_id):
         logging.info(f"Added new update for disaster ID {disaster_id}")
     except mysql.connector.Error as err:
         logging.error(f"Error adding update for disaster ID {disaster_id}: {err}")
-        # Consider adding a flash message to inform the user about the error
+        
     finally:
         cursor.close()
         db.close()
@@ -318,7 +316,7 @@ def allocate_shelter(disaster_id, shelter_id):
         logging.info(f"Allocated shelter ID {shelter_id} to disaster ID {disaster_id}")
     except mysql.connector.Error as err:
         logging.error(f"Error allocating shelter ID {shelter_id}: {err}")
-        # Optionally flash message here
+       
     finally:
         cursor.close()
         db.close()
@@ -333,7 +331,6 @@ def manage_shelters(disaster_id):
     db = get_db()
     cursor = db.cursor(dictionary=True)
 
-    # Fetch the current disaster to get its location
     cursor.execute("SELECT disaster_id, disaster_name, latitude, longitude FROM Disasters WHERE disaster_id = %s", (disaster_id,))
     disaster = cursor.fetchone()
 
@@ -341,7 +338,7 @@ def manage_shelters(disaster_id):
     unallocated_nearby_shelters = []
 
     if disaster:
-        # Fetch shelters allocated to the current disaster
+       
         cursor.execute("""
 SELECT s.* 
 FROM Shelters s
@@ -351,7 +348,7 @@ WHERE ds.disaster_id = %s
 
         allocated_shelters = cursor.fetchall()
 
-        # Fetch all unallocated shelters
+     
         cursor.execute("""
 SELECT * 
 FROM Shelters 
@@ -360,9 +357,9 @@ WHERE shelter_id NOT IN (SELECT shelter_id FROM disastershelters)
 
         unallocated_shelters = cursor.fetchall()
 
-        proximity_threshold = 50  # Kilometers (adjust as needed)
+        proximity_threshold = 20  
 
-        # Filter unallocated shelters based on proximity to the disaster
+        
         if disaster['latitude'] is not None and disaster['longitude'] is not None:
             for shelter in unallocated_shelters:
                 if shelter['latitude'] is not None and shelter['longitude'] is not None:
@@ -374,8 +371,8 @@ WHERE shelter_id NOT IN (SELECT shelter_id FROM disastershelters)
                         shelter['distance_to_disaster'] = f"{distance:.2f} km"
                         unallocated_nearby_shelters.append(shelter)
                     else:
-                        shelter['distance_to_disaster'] = f"{distance:.2f} km" # Optionally show all with distance
-                        # You might choose not to display these at all if you strictly want "nearby"
+                        shelter['distance_to_disaster'] = f"{distance:.2f} km"
+                        
 
     cursor.close()
     db.close()
@@ -383,7 +380,7 @@ WHERE shelter_id NOT IN (SELECT shelter_id FROM disastershelters)
                            disaster_id=disaster_id,
                            disaster=disaster,
                            allocated_shelters=allocated_shelters,
-                           unallocated_shelters=unallocated_nearby_shelters) # Pass the filtered list
+                           unallocated_shelters=unallocated_nearby_shelters) 
 
 
 @app.route('/disaster/<int:disaster_id>/shelters/add', methods=['POST'])
@@ -391,7 +388,7 @@ def add_shelter(disaster_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
     name = request.form['shelter_name']
-    shelter_type = request.form['shelter_type']
+    
     capacity = request.form.get('capacity', 0)
     location = request.form['location']
     latitude_form = request.form.get('latitude')
@@ -401,6 +398,13 @@ def add_shelter(disaster_id):
 
     logging.info(f"Form data submitted for adding shelter: {request.form}")
 
+    latitude = request.form.get('latitude')
+    longitude = request.form.get('longitude')
+
+# Handle empty strings or missing values
+    latitude = float(latitude) if latitude else None
+    longitude = float(longitude) if longitude else None
+
     if not latitude:
         latitude = None
     if not longitude:
@@ -409,21 +413,21 @@ def add_shelter(disaster_id):
     db = get_db()
     cursor = db.cursor()
     try:
-        # Insert into the Shelters table
+       
         insert_shelter_query = """
-        INSERT INTO Shelters (shelter_name, shelter_type, capacity, location, latitude, longitude, contact_person, contact_number)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO Shelters (shelter_name, capacity, location, latitude, longitude, contact_person, contact_number)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
-        shelter_params = (name, shelter_type, capacity, location, latitude, longitude, contact_person, contact_number)
+        shelter_params = (name,  capacity, location, latitude, longitude, contact_person, contact_number)
         logging.info(f"Executing SQL query: {insert_shelter_query} with params: {shelter_params}")
         cursor.execute(insert_shelter_query, shelter_params)
         db.commit()
 
-        # Get the ID of the newly inserted shelter
+        
         shelter_id = cursor.lastrowid
         logging.info(f"New shelter ID: {shelter_id}")
 
-        # Insert into the disastershelters table to link the shelter to the disaster
+        
         insert_disaster_shelter_query = """
         INSERT INTO disastershelters (disaster_id, shelter_id)
         VALUES (%s, %s)
@@ -437,8 +441,7 @@ def add_shelter(disaster_id):
     except mysql.connector.Error as err:
         logging.error(f"Error adding shelter for disaster ID {disaster_id}: {err}")
         logging.error(f"MySQL Error: {err}")
-        db.rollback() # Important to rollback if any part fails
-        # Consider adding a flash message
+        db.rollback() 
     finally:
         cursor.close()
         db.close()
@@ -453,7 +456,7 @@ def delete_shelter(disaster_id, shelter_id):
     db = get_db()
     cursor = db.cursor()
     try:
-        # Remove allocation from disastershelters table
+        
         cursor.execute("DELETE FROM disastershelters WHERE shelter_id = %s AND disaster_id = %s", (shelter_id, disaster_id))
         db.commit()
         logging.info(f"Deallocated shelter ID {shelter_id} from disaster ID {disaster_id}")
@@ -473,7 +476,7 @@ def edit_shelter(disaster_id, shelter_id):
     shelter = None
 
     if request.method == 'GET':
-    # Fetch shelter data without disaster_id
+   
         cursor.execute("SELECT * FROM Shelters WHERE shelter_id = %s", (shelter_id,))
         shelter = cursor.fetchone()
 
@@ -485,7 +488,7 @@ def edit_shelter(disaster_id, shelter_id):
             return "Shelter not found", 404
     elif request.method == 'POST':
         name = request.form['shelter_name']
-        shelter_type = request.form['shelter_type']
+        
         capacity = request.form.get('capacity', 0)
         location = request.form['location']
         latitude = request.form.get('latitude')
@@ -495,18 +498,18 @@ def edit_shelter(disaster_id, shelter_id):
 
         update_query = """
         UPDATE Shelters
-        SET shelter_name = %s, shelter_type = %s, capacity = %s,
+        SET shelter_name = %s, capacity = %s,
             location = %s, latitude = %s, longitude = %s,
             contact_person = %s, contact_number = %s
         WHERE shelter_id = %s AND disaster_id = %s
         """
         try:
-            cursor.execute(update_query, (name, shelter_type, capacity, location, latitude, longitude, contact_person, contact_number, shelter_id, disaster_id))
+            cursor.execute(update_query, (name,  capacity, location, latitude, longitude, contact_person, contact_number, shelter_id, disaster_id))
             db.commit()
             logging.info(f"Updated shelter ID {shelter_id} for disaster ID {disaster_id}")
         except mysql.connector.Error as err:
             logging.error(f"Error updating shelter ID {shelter_id}: {err}")
-            # Consider adding a flash message
+            
         finally:
             cursor.close()
             db.close()
@@ -521,24 +524,23 @@ def manage_volunteers(disaster_id):
     db = get_db()
     cursor = db.cursor(dictionary=True)
 
-    # Fetch the current disaster's information
+    
     cursor.execute("SELECT disaster_id, disaster_name, latitude, longitude FROM Disasters WHERE disaster_id = %s", (disaster_id,))
     disaster = cursor.fetchone()
 
     nearby_active_unassigned_volunteers = []
     appointed_volunteers = []
-    proximity_threshold = 5  # Kilometers (adjust as needed)
+    proximity_threshold = 5 
 
     if disaster:
-        # Fetch all volunteer details including email and secondary contact number
+        
         cursor.execute("SELECT volunteer_id, first_name, last_name, contact_number, secondary_contact_number, email, volunteer_type, is_active, latitude, longitude FROM volunteers")
         all_volunteers = cursor.fetchall()
 
-        # Fetch IDs of volunteers appointed to this disaster
+      
         cursor.execute("SELECT volunteer_id FROM disastervolunteers WHERE disaster_id = %s", (disaster_id,))
         appointed_volunteer_ids = {row['volunteer_id'] for row in cursor.fetchall()}
 
-        # Filter nearby active and unassigned volunteers
         for volunteer in all_volunteers:
             if volunteer['is_active'] and volunteer['latitude'] is not None and volunteer['longitude'] is not None and disaster['latitude'] is not None and disaster['longitude'] is not None:
                 distance = haversine(disaster['latitude'], disaster['longitude'], float(volunteer['latitude']), float(volunteer['longitude']))
@@ -546,7 +548,7 @@ def manage_volunteers(disaster_id):
                 if distance <= proximity_threshold and volunteer['volunteer_id'] not in appointed_volunteer_ids:
                     nearby_active_unassigned_volunteers.append(volunteer)
 
-            # Identify currently appointed volunteers
+            
             if volunteer['volunteer_id'] in appointed_volunteer_ids:
                 appointed_volunteers.append(volunteer)
 
@@ -571,12 +573,12 @@ def assign_volunteer(disaster_id, volunteer_id):
         cursor.execute(insert_query, (disaster_id, volunteer_id))
         db.commit()
         logging.info(f"Assigned volunteer ID {volunteer_id} to disaster ID {disaster_id}")
-        # Optionally update volunteer's is_active status upon assignment
+       
         cursor.execute("UPDATE volunteers SET is_active = 1 WHERE volunteer_id = %s", (volunteer_id,))
         db.commit()
     except mysql.connector.Error as err:
         logging.error(f"Error assigning volunteer {volunteer_id} to disaster {disaster_id}: {err}")
-        # Consider adding a flash message
+       
     finally:
         cursor.close()
         db.close()
@@ -596,12 +598,10 @@ def unassign_volunteer(disaster_id, volunteer_id):
         cursor.execute(delete_query, (disaster_id, volunteer_id))
         db.commit()
         logging.info(f"Unassigned volunteer ID {volunteer_id} from disaster ID {disaster_id}")
-        # Optionally update volunteer's is_active status upon unassignment
-        # cursor.execute("UPDATE volunteers SET is_active = 0 WHERE volunteer_id = %s", (volunteer_id,))
-        # db.commit()
+       
     except mysql.connector.Error as err:
         logging.error(f"Error unassigning volunteer {volunteer_id} from disaster {disaster_id}: {err}")
-        # Consider adding a flash message
+    
     finally:
         cursor.close()
         db.close()
@@ -614,7 +614,7 @@ def manage_resources(disaster_id):
     db = get_db()
     cursor = db.cursor(dictionary=True)
 
-    # Fetch the current disaster's information
+  
     cursor.execute("SELECT disaster_id, disaster_name FROM Disasters WHERE disaster_id = %s", (disaster_id,))
     disaster = cursor.fetchone()
 
@@ -623,11 +623,11 @@ def manage_resources(disaster_id):
         db.close()
         return "Disaster not found", 404
 
-    # Fetch all available resources
+
     cursor.execute("SELECT resource_id, resource_name, resource_type, unit, quantity FROM resources")
     all_resources = {row['resource_id']: row for row in cursor.fetchall()}
 
-    # Fetch current resource needs, available, and allocated quantities for this disaster
+
     cursor.execute("""
         SELECT
             dr.resource_id,
@@ -663,7 +663,7 @@ def add_resource_to_disaster(disaster_id):
     quantity_needed = int(request.form.get('quantity', 0))
 
     try:
-        # Check if the resource exists
+    
         cursor.execute("SELECT quantity FROM resources WHERE resource_id = %s", (resource_id,))
         resource = cursor.fetchone()
         if not resource:
@@ -676,7 +676,6 @@ def add_resource_to_disaster(disaster_id):
             flash(f"Not enough {all_resources.get(int(resource_id), {}).get('resource_name', 'resource')} available. Available: {available_quantity}", "warning")
             return redirect(url_for('manage_resources', disaster_id=disaster_id))
 
-        # Check if the resource is already associated with the disaster
         cursor.execute("""
             SELECT quantity_needed, quantity_allocated FROM disasterresources
             WHERE disaster_id = %s AND resource_id = %s
@@ -685,7 +684,7 @@ def add_resource_to_disaster(disaster_id):
 
         if existing_resource:
             new_quantity_needed = existing_resource[0] + quantity_needed
-            new_quantity_allocated = existing_resource[1] + quantity_needed  # Allocate the newly needed amount
+            new_quantity_allocated = existing_resource[1] + quantity_needed  
 
             cursor.execute("""
                 UPDATE disasterresources
@@ -694,14 +693,13 @@ def add_resource_to_disaster(disaster_id):
             """, (new_quantity_needed, new_quantity_allocated, disaster_id, resource_id))
             logging.info(f"Updated needed and allocated {quantity_needed} for resource ID {resource_id} in disaster ID {disaster_id}")
         else:
-            # Add new resource for the disaster, initially allocating the needed amount
+           
             cursor.execute("""
                 INSERT INTO disasterresources (disaster_id, resource_id, quantity_needed, quantity_allocated)
                 VALUES (%s, %s, %s, %s)
             """, (disaster_id, resource_id, quantity_needed, quantity_needed))
             logging.info(f"Added and allocated {quantity_needed} of resource ID {resource_id} to disaster ID {disaster_id}")
 
-        # Subtract the allocated quantity from the total available resources
         cursor.execute("""
             UPDATE resources
             SET quantity = quantity - %s
@@ -742,11 +740,11 @@ def remove_resource_from_disaster(disaster_id, resource_id):
 
 @app.route('/disaster/<int:disaster_id>/view_disaster')
 def view_disaster(disaster_id):
-    db = get_db()  # Get the database connection
-    cursor = db.cursor(dictionary=True)  # Use dictionary cursor for easier data retrieval
+    db = get_db()   
+    cursor = db.cursor(dictionary=True) 
 
     try:
-        # Fetch disaster details
+       
         cursor.execute("SELECT * FROM disasters WHERE disaster_id = %s", (disaster_id,))
         disaster = cursor.fetchone()
 
@@ -760,7 +758,7 @@ def view_disaster(disaster_id):
 
         shelter_summary = cursor.fetchone()
 
-        # Fetch related data using JOINs
+      
         cursor.execute("""
             SELECT v.*
             FROM volunteers v
@@ -769,7 +767,7 @@ def view_disaster(disaster_id):
         """, (disaster_id,))
         volunteers = cursor.fetchall()
 
-        # Fetch resources and related details
+   
         cursor.execute("""
             SELECT r.resource_id, r.resource_name, r.resource_type,
                    dr.quantity_allocated AS allocated_quantity, r.unit, r.location, r.latitude, r.longitude
@@ -780,7 +778,6 @@ def view_disaster(disaster_id):
         """, (disaster_id,))
         resources = cursor.fetchall()
 
-        # Fetch shelter details
         cursor.execute("""
             SELECT s.*
             FROM shelters s
@@ -789,11 +786,10 @@ def view_disaster(disaster_id):
         """, (disaster_id,))
         shelters = cursor.fetchall()
 
-        # Fetch disaster updates
         cursor.execute("SELECT * FROM disasterupdates WHERE disaster_id = %s ORDER BY update_timestamp DESC", (disaster_id,))
         updates = cursor.fetchall()
 
-        # Calculate summary information for the latest update
+        
         latest_update = updates[0] if updates else None
 
         cursor.execute("""
@@ -828,8 +824,8 @@ def view_disaster(disaster_id):
                                shelter_summary=shelter_summary)
 
     except mysql.connector.Error as err:
-        print(f"Error: {err}")  # Log the error
-        #  Consider showing a user-friendly error message on the page
+        print(f"Error: {err}")  
+        
         return render_template('view_disaster.html', error_message=f"An error occurred while fetching data: {err}", selected_disaster=None, volunteers=[], resources=[], shelters=[], updates=[], latest_update=None, resource_summary=None, volunteer_summary=None)
 
     finally:

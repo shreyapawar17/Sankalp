@@ -3,8 +3,8 @@
 <head>
     <style>
         #updatePieChart {
-            width: 300px !important;  /* Set desired width */
-            height: 300px !important; /* Set desired height */
+            width: 300px !important;  
+            height: 300px !important; 
         }
     </style>
     <meta charset="UTF-8">
@@ -15,47 +15,47 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* Custom styles for Sankalp - NDMA Disaster Management */
+        
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9; /* Lighter background */
-            color: #334155; /* Darker text for better readability */
+            background-color: #f1f5f9;
+            color: #334155; 
         }
         .container {
-            max-width: 800px; /* Increased max-width for larger screens */
-            margin: 2rem auto; /* Increased margin for better spacing */
+            max-width: 800px; 
+            margin: 2rem auto; 
             padding: 2rem;
             background-color: #fff;
-            border-radius: 0.75rem; /* Rounded corners */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Shadow */
+            border-radius: 0.75rem; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); 
         }
         h1 {
-            font-size: 2.25rem; /* Larger heading */
-            font-weight: 700; /* Bold heading */
-            color: #e53e3e; /* Red color for disaster name */
+            font-size: 2.25rem; 
+            font-weight: 700; 
+            color: #e53e3e; 
             margin-bottom: 1.5rem;
             text-align: center;
         }
         h2 {
-            font-size: 1.5rem; /* Increased heading size */
-            font-weight: 600; /* Semi-bold heading */
-            color: #2d3748; /* Darker heading */
-            margin-top: 2rem; /* Increased margin */
+            font-size: 1.5rem;
+            font-weight: 600; 
+            color: #2d3748;
+            margin-top: 2rem; 
             margin-bottom: 1rem;
-            border-bottom: 2px solid #e2e8f0; /* Subtler border */
+            border-bottom: 2px solid #e2e8f0; 
             padding-bottom: 0.5rem;
         }
         p {
-            line-height: 1.75; /* Increased line height for better readability */
+            line-height: 1.75; 
             color: #4a5568;
             margin-bottom: 1rem;
         }
         .info-box {
             padding: 1.5rem;
-            background-color: #fefcbf; /* Lighter yellow for information boxes */
+            background-color: #fefcbf; 
             border-radius: 0.75rem;
             margin-bottom: 1.5rem;
-            border: 1px solid #fbd38d; /* Subtle yellow border */
+            border: 1px solid #fbd38d; 
         }
 
         .info-box h3{
@@ -77,11 +77,11 @@
 
 
         .resource-summary {
-            background-color: #ebf8ff; /* Lighter blue for resource summary */
+            background-color: #ebf8ff; 
             padding: 1.5rem;
             border-radius: 0.75rem;
             margin-bottom: 1.5rem;
-            border: 1px solid #bee3f8; /* Soft cyan border */
+            border: 1px solid #bee3f8; 
         }
 
         .resource-summary h3{
@@ -92,7 +92,7 @@
         }
 
         .volunteer-summary {
-            background-color: #fefcbf; /* Lighter yellow for volunteer summary */
+            background-color: #fefcbf; 
             padding: 1.5rem;
             border-radius: 0.75rem;
             margin-bottom: 1.5rem;
@@ -107,11 +107,11 @@
         }
 
         .shelter-summary {
-            background-color: #e6fffa; /* Very light cyan for shelter summary */
+            background-color: #e6fffa; 
             padding: 1.5rem;
             border-radius: 0.75rem;
             margin-bottom: 1.5rem;
-            border: 1px solid #81e6d9; /* Soft cyan border */
+            border: 1px solid #81e6d9; 
         }
         .shelter-summary h3 {
             font-size: 1.25rem;
@@ -125,27 +125,27 @@
             border-collapse: collapse;
             margin-top: 2rem;
             border-radius: 0.75rem;
-            overflow: hidden; /* For rounded corners of the table */
-            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04); /* Subtle shadow */
+            overflow: hidden; 
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04); 
         }
         th, td {
             padding: 1rem;
             text-align: left;
-            border-bottom: 1px solid #e2e8f0; /* Lighter border */
+            border-bottom: 1px solid #e2e8f0; 
         }
         th {
-            background-color: #f7fafc; /* Very light background for header */
+            background-color: #f7fafc; 
             font-weight: 600;
             color: #4a5568;
         }
         tbody tr:hover {
-            background-color: #edf2f7; /* Very light hover effect */
+            background-color: #edf2f7; 
         }
         .back-button {
             display: inline-flex;
             align-items: center;
             padding: 0.75rem 1.5rem;
-            background-color: #7f9cf5; /* Soft indigo */
+            background-color: #7f9cf5;
             color: #fff;
             font-weight: 600;
             border-radius: 0.5rem;
@@ -154,7 +154,7 @@
             margin-top: 1rem;
         }
         .back-button:hover {
-            background-color: #5a67d8; /* Slightly darker indigo on hover */
+            background-color: #5a67d8; 
         }
         .back-button svg {
             margin-right: 0.5rem;
